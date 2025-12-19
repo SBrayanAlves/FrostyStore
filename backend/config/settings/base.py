@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "catalog.apps.CatalogConfig",
-    "core.apps.CoreConfig",
     "users.apps.UsersConfig",
 ]
 
@@ -129,6 +128,12 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-AUTH_USER_MODEL = "users.Profile"
+AUTH_USER_MODEL = "users.User"
 
 CORS_ALLOW_CREDENTIALS = True
+
+# URL base para acessar os arquivos (ex: http://localhost:8000/media/foto.jpg)
+MEDIA_URL = '/media/'
+
+# Onde os arquivos ficam fisicamente no seu PC
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
