@@ -1,8 +1,8 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import api from "../services/api";
 
 function Login() {
 
@@ -16,10 +16,12 @@ function Login() {
     setError("");
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/auth/login/", {
+      const response = await api.post("http://127.0.0.1:8000/api/auth/login/", {
         email,
         password,
       });
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("refresh_token", response.data.refresh);
       if (response.status === 200) {
         navigate("/dashboard");
       }

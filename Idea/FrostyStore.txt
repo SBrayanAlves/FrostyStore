@@ -47,8 +47,9 @@ Telas:
     Detalhes:
         3 Pedacos:
         (Pagina Base)
-            1. Barra lateral na esquerda com Foto, Nome e Bio do vendedor +  Meu Perfil
-            2. 
+            1. Header
+            2. Barra lateral na esquerda com Foto, Nome e Bio do vendedor +  Meu Perfil
+            3. Vitrine com os produtos cadastrados com foto nome e preco
 
     - Tela de Visualizacao: -> .com/<username>/<produto>/
     Detalhes:
