@@ -1,0 +1,68 @@
+FrostyStore
+
+O Projeto FrostyStore e um produto real, que eu pretendo fazer deploy
+
+A ideia do produto nao e ser um e-commerce mas sim uma Vitrine On-line
+Caracteristicas:
+    - Minimalista:
+        - Perfil
+            - Informacoes do Comerciante
+        - Produtos
+            - Itens anunciados pelo Comerciante
+    - Cores:
+        - Branco (Color principal)
+        - Preto (Color secundaria)
+        - Cinza (Color degrade)
+
+---
+
+URLs:
+Publica
+    - www.frostystore.com/
+    - www.frostystore.com/SBrayanAlves/
+    - www.frostystore.com/SBrayanAlves/geladeira-inox
+
+Privadas
+    - www.frostystore.com/dashboard/
+    - www.frostystore.com/dashboard/
+
+---
+
+Telas:
+    - Tela de apresentacao do sistema: -> .com/
+    Detalhes:
+        - Fundo Branco
+        - Canto superior direito botao de login com redirect 
+        - Logo no meio com alguns efeitos CSS 
+        - Scroll pra baixo com informacoes do site/desenvolvimento
+
+    - Tela de Login: -> .com/login
+    Detalhes:
+        - Tipo de Insider
+        - Tela simples minimalista com 1 div central e 3 botoes
+        - Email - Senha - Logar
+        - Logo da FrostyStore no canto superior esquerdo que leva pro inicio da pagina 
+
+    - Tela de Vitrine: -> .com/<username>/ 
+    Detalhes:
+        3 Pedacos:
+        (Pagina Base)
+            1. Barra lateral na esquerda com Foto, Nome e Bio do vendedor +  Meu Perfil
+            2. 
+
+    - Tela de Visualizacao: -> .com/<username>/<produto>/
+    Detalhes:
+        - 
+
+    - Tela de Criar Item:
+    Detalhes:
+        - 
+
+    - Tela de Editar Item:
+    Detalhes:
+        -
+
+    - Tela de Editar Perfil:
+    Detalhes:
+        - Quando clicar em "Meu Perfil" abrir um Modal tipo do Discord 
+

@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "django_filters",
+    "drf_spectacular",
     "catalog.apps.CatalogConfig",
     "users.apps.UsersConfig",
 ]
@@ -137,3 +139,18 @@ MEDIA_URL = '/media/'
 
 # Onde os arquivos ficam fisicamente no seu PC
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
+
+    'DATETIME_FORMAT': "%d/%m/%Y %H:%M:%S",
+
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'FrostyStore API',
+    'DESCRIPTION': 'API de catálogo de produtos para eletrodomésticos',
+    'VERSION': '1.0.0',
+}
