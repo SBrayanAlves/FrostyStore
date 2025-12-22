@@ -6,7 +6,7 @@ function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const isHomePage = location.pathname === "/";
-  const isDashBoardPage = location.pathname === "/dashboard";
+  const isDashBoardPage = location.pathname.startsWith("/dashboard");
 
   const handleLogout = async () => {
     const acessToken = localStorage.getItem("token");

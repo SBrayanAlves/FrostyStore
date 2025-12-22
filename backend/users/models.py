@@ -57,9 +57,6 @@ class User(AbstractUser):
         return self.username
     
     def save(self, *args, **kwargs):
-
         if not self.slug:
-            base = slugify(self.username)
-            self.slug = f"{base}-{str(self.id)[:8]}"
-
+            self.slug = slugify(self.username)
         super().save(*args, **kwargs)

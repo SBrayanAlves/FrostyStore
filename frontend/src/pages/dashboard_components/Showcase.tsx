@@ -1,4 +1,10 @@
 // Interface para Tipagem (TypeScript)
+
+interface ShowcaseProps {
+  username: string
+  isOwner: boolean
+}
+
 interface Product {
   id: number;
   name: string;
@@ -38,7 +44,7 @@ const products: Product[] = [
   }
 ];
 
-function Showcase() {
+function Showcase({ username, isOwner }: ShowcaseProps) {
   return (
     <section className="flex-1 min-w-0">
       

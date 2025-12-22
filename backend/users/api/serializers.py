@@ -1,14 +1,41 @@
 from rest_framework import serializers
 from users.models import User
 import datetime
+from django.contrib.auth import authenticate
 import re
 
-class UserPublicSerializer(serializers.ModelSerializer):
+class UserLoginSerializer(serializers.Serializer):
+
+
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+        user = authenticate(email=email, password=password)
+        if not user:
+            raise serializers.ValidationError('Invalid credentials')
+        attrs['user'] = user
+        return attrs
+    
+class GetClienteDashboardSerializer(serializers.ModelSerializer):
+
+
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'profile_picture', 'bio', 'date_of_birth', 'location', 'phone_number')
+        fields = ('id','username', 'first_name', 'last_name', 'profile_picture', 'bio')
 
-class UpdateUserSerializer(serializers.ModelSerializer):
+class GetUserDashboardSerializer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'profile_picture', 'bio')
+
+class PostUpdateUserSerializer(serializers.ModelSerializer):
+
+    
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'profile_picture', 'bio', 'date_of_birth', 'location', 'phone_number')
