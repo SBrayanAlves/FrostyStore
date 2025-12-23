@@ -23,7 +23,7 @@ function PublicStore() {
     const cleanSlug = slug.toLowerCase();
     console.log("Buscando usuário:", cleanSlug)
 
-    api.get(`http://localhost:8000/api/auth/${cleanSlug}`) 
+    api.get(`auth/${cleanSlug}`) 
       .then(res => {
         console.log("Usuário encontrado:", res.data);
         setUser(res.data);

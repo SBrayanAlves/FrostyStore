@@ -20,7 +20,7 @@ function Login() {
         email,
         password,
       });
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("access_token", response.data.access);
       localStorage.setItem("refresh_token", response.data.refresh);
       if (response.status === 200) {
         navigate("/dashboard");

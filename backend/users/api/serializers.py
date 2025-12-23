@@ -1,9 +1,12 @@
+from PIL import Image
 from rest_framework import serializers
 from users.models import User
 import datetime
 from django.contrib.auth import authenticate
 import re
 
+# ---------------------------------------------------------------
+# Serializer de Login de Usuario ✓
 class UserLoginSerializer(serializers.Serializer):
 
 
@@ -18,38 +21,52 @@ class UserLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Invalid credentials')
         attrs['user'] = user
         return attrs
-    
-class GetClienteDashboardSerializer(serializers.ModelSerializer):
+
+# --------------------------------------------------------------- 
+# Serializer para acessar o perfil do Usuario (cliente) ✓
+class PublicUserSerializer(serializers.ModelSerializer):
 
 
     class Meta:
         model = User
         fields = ('id','username', 'first_name', 'last_name', 'profile_picture', 'bio')
 
-class GetUserDashboardSerializer(serializers.ModelSerializer):
+# ---------------------------------------------------------------
+# Serializer para acessar o dashboard e Perfil do Usuario autenticado 
+# DashBord ✓
+# Perfil 
+class PrivateUserSerializer(serializers.ModelSerializer):
 
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'profile_picture', 'bio')
+        fields = ('id','username', 'first_name', 'last_name', 'profile_picture', 'bio', 'date_of_birth', 'location', 'phone_number', 'email')
 
+
+# ---------------------------------------------------------------
+# Serializer para atualizar o perfil do Usuario autenticado 
 class PostUpdateUserSerializer(serializers.ModelSerializer):
 
     
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'profile_picture', 'bio', 'date_of_birth', 'location', 'phone_number')
+        fields = ('id','first_name', 'last_name', 'profile_picture', 'bio', 'date_of_birth', 'location', 'phone_number')
 
     def validate_profile_picture(self, profile_picture):
         if profile_picture:
-            valid_mime_types = ['image/jpeg', 'image/png']
-            file_mime_type = profile_picture.file.content_type
-            if file_mime_type not in valid_mime_types:
-                raise serializers.ValidationError('Unsupported file type. Only JPEG and PNG are allowed.')
             if profile_picture.size > 2 * 1024 * 1024:
-                raise serializers.ValidationError('Profile picture size should not exceed 2MB.')
+                raise serializers.ValidationError('A imagem deve ter no máximo 2MB.')
+            try:
+                img = Image.open(profile_picture)
+                img.verify()
+            except Exception:
+                raise serializers.ValidationError('O arquivo enviado não é uma imagem válida.')
+
+            if img.format not in ['JPEG', 'PNG']:
+                raise serializers.ValidationError('Apenas formatos JPEG e PNG são permitidos.')
+                
         return profile_picture
-        
+            
     def validate_bio(self, bio):
         if bio:
             prohibited_words = ['spam', 'advertisement', 'offensive']
@@ -78,9 +95,10 @@ class PostUpdateUserSerializer(serializers.ModelSerializer):
         return location
     
     def validate_phone_number(self, phone_number):
-        if phone_number and not phone_number.isdigit():
-            raise serializers.ValidationError("Phone number must contain only digits.")
-        phone_number = re.sub(r'\D', '', phone_number)
-        if len(phone_number) < 10 or len(phone_number) > 15:
+        if not phone_number:
+            return None
+        
+        phone_number_clear = re.sub(r'\D', '', phone_number)
+        if len(phone_number_clear) < 10 or len(phone_number_clear) > 15:
             raise serializers.ValidationError("Phone number must be between 10 and 15 digits.")
-        return phone_number
+        return phone_number_clear

@@ -6,12 +6,15 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from  users.models import User
 from .serializers import UserLoginSerializer
-from .serializers import GetUserDashboardSerializer
-from .serializers import GetClienteDashboardSerializer
+from .serializers import PublicUserSerializer
+from .serializers import PrivateUserSerializer
+from .serializers import PostUpdateUserSerializer
 
 
 # Create your views here.
 
+# ---------------------------------------------------------------
+# View para Login de Usuario ✓
 class Login(APIView):
     permission_classes = [AllowAny]
 
@@ -32,6 +35,8 @@ class Login(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=500)
         
+# ---------------------------------------------------------------
+# View para Logout de Usuario ✓
 class Logout(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -44,25 +49,58 @@ class Logout(APIView):
         except Exception as e:
             return Response({'error': "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
         
+# ---------------------------------------------------------------
+# View para acessar o dashboard do Usuario (cliente) ✓
 class ClientDashboard(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, slug):
         try:
             user = get_object_or_404(User, slug=slug)
-            serializer = GetClienteDashboardSerializer(user)
+            serializer = PublicUserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# ---------------------------------------------------------------
+# View para acessar o dashboard do Usuario autenticado ✓
 class UserDashboard(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
             user = request.user
-            serializer = GetUserDashboardSerializer(user)
+            serializer = PrivateUserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=500)
         
+# ---------------------------------------------------------------
+# View para acessar o perfil do Usuario autenticado ✓
+class PerfilUser(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            serializer = PrivateUserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+# ---------------------------------------------------------------
+# View para atualizar o perfil do Usuario autenticado 
+class UpdateUser(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        try:
+            user = request.user
+            serializer = PostUpdateUserSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'Profile updated successfully'}, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

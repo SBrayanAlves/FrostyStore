@@ -16,15 +16,52 @@ Caracteristicas:
 
 ---
 
+Diagramas:
+    - Diagrama de Caso de Uso:
+        Cliente -> VisualizaPerfil() ✓
+        Cliente -> VisualizarItem()
+        Cliente -> EntraEmContato() -> Futuramente eu vejo isso
+
+        Usuario -> FazerLogin() ✓
+        Usuario -> Logout() 
+        Usuario -> CriarItem()
+        Usuario -> ListarItem()
+        Usuario -> VisualizarItem()
+        Usuario -> AtualizarItem()
+        Usuario -> DeleterItem()
+        Usuario -> EditarPerfil()
+        Usuario -> AtivarItem() / DesativarItem()
+        Usuario -> DeletarPerfil()
+    
+    - Diagrama de Classe:
+        User(AbstractUser):
+        Username -> CharField (Obrigatorio)
+     	FirstName -> CharField (Obrigatorio)
+     	LastName -> CharField (Obrigatorio)
+     	Email -> EmailField (Obrigatorio)
+     	Password -> CharField (Obrigatorio)
+     	FotoDePerfil -> ImageField (Opcional)
+     	DataNascimento -> DateField (Opcional)
+     	Telefone -> CharField (Opcional)
+     	Slug → SlugField (URL amigável)
+     	Created_at → DateTimeField
+ 	    Updated_at → DateTimeField
+
+---
+
 URLs:
 Publica
-    - www.frostystore.com/
-    - www.frostystore.com/SBrayanAlves/
-    - www.frostystore.com/SBrayanAlves/geladeira-inox
+	- GET FrostyStore.com ✓
+	- GET/POST FrostyStore.com/login ✓
+	- GET FrostyStore.com/<slug:slug> ✓
+    	- GET FrostyStore.com/<slug:slug>/p/id:product
 
 Privadas
-    - www.frostystore.com/dashboard/
-    - www.frostystore.com/dashboard/
+	- FrostyStore.com/dashboard/ ✓
+	- FrostyStore.com/dashboard/new-item/
+	- FrostyStore.com/dashboard/<id:product>/edit/ 
+	- FrostyStore.com/dashboard/profile/
+	- FrostyStore.com/dashboard/profile/edit
 
 ---
 
@@ -47,9 +84,10 @@ Telas:
     Detalhes:
         3 Pedacos:
         (Pagina Base)
-            1. Header
-            2. Barra lateral na esquerda com Foto, Nome e Bio do vendedor +  Meu Perfil
-            3. Vitrine com os produtos cadastrados com foto nome e preco
+            1. Header -> Ok
+            2. Barra lateral na esquerda com Foto, Nome e Bio do vendedor +  Meu Perfil -> Ok
+            3. Vitrine com os produtos cadastrados com foto nome e preco -> ...
+            4. Footer -> Ok
 
     - Tela de Visualizacao: -> .com/<username>/<produto>/
     Detalhes:
@@ -67,3 +105,176 @@ Telas:
     Detalhes:
         - Quando clicar em "Meu Perfil" abrir um Modal tipo do Discord 
 
+---
+
+Planejamento
+
+Dia 1: Criacao dos diagramas:
+ 	- Casos de Uso
+ 	- Classes
+
+Dia 2: Criacao da estrutura de pastas do projeto
+│
+├── .gitignore                <-- Ignora backend/.env, frontend/.env, venv e node_modules
+│
+├── backend/
+│   ├── .env
+│   ├── .venv/
+│   ├── config/
+│   │   ├── settings/
+│   │   │   ├── base.py
+│   │   │	 ├── dev.py
+│   │   │   ├── production.py
+│   │   ├── urls.py
+│   │   ├── wsgi.py
+│   │   └── asgi.py
+│   │
+│   ├── users/
+│   │   ├── api/
+│   │   │   ├── urls.py
+│   │   │   ├── serializers.py
+│   │   │   └── views.py
+│   │   ├── models.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   └── tests.py
+│   ├── catalog/
+│   │   ├── api/
+│   │   │   ├── urls.py
+│   │   │   ├── serializers.py
+│   │   │   └── views.py
+│   │   ├── models.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   └── tests.py
+│   │
+│   ├── requirements.txt
+│   └── manage.py
+│
+└── frontend/
+    ├── .env
+    ├── node_modules/
+    ├── src/
+    └── ...
+
+ 	- Backend:
+ 		- config - calalog - users
+ 	- Frontend:
+ 		- pages - components - routes - services
+ 
+Dia 3: Criacao do Models
+ 	- Models de users - User
+ 	- Models de catalog - Voltage - Condition - Brand - Category - Product
+
+Dia 4: Criacao do Admins
+ 	- Admin de users - UserAdmin
+ 	- Admin de catalog - ProductImagemInline - BrandAdmin - CategoryAdmin - ProductAdmin
+
+Dia 5: Criacao das URLs
+APPS: users & catalog
+
+ 	URLs de paginas (frontend):
+ 		- https://www.frostystore.com/ -> Tela de apresentacao do site
+ 		- https://www.frostystore.com/login/ -> Tela de Login simples tipo da Insider
+ 		- https://www.frostystore.com/SbrayanAlves/ -> Tela visualizacao da Vitrine do vendedor
+ 		- https://www.frostystore.com/SBrayanAlves/p/ -> Tela para produto especifico do vendedor 
+(Ideia fazer modal tipo instagram)
+
+ 	URLs de api (backend):
+ 	permission_classes = [IsAuthenticated]
+ 		Users:
+ 			- GET api/users/dashboard/ -> Vitrine do vendedor
+ 			- POST api/users/dashboard/meu-perfil/ -> Editar proprio perfil
+ 		Catalog:
+ 			- POST api/catalog/dashboard/novo-item -> Cria um novo produto para a Vitrine do vendedor
+ 			- PUT api/catalog/dashboard/<item>/edit/ -> Editar um item especifico da Vitrine
+ 			- DELET api/catalog/dashboard/<item>/delet/ -> Opcao de Deletar item especifico na funcao de editar
+
+ 
+ 	URLs administrativas:
+ 	permission_classes = [IsAdminUser]
+ 		- /admin -> Tela administrativa, vulgo, django-admin
+
+Dia 5: Criacao dos Fluxos
+
+---
+ 	- Login:
+ 		Frontend(React) pega os dados .json de login - Email, Senha - manda pro backend -> Serializer + Validacao -> is_authenticate + Token de acesso JWT
+React (LoginForm.tsx)
+→ POST /api/auth/login/
+→ Backend (APIView / Serializer)
+→ authenticate(username/email, password)
+→ Geração de Access Token + Refresh Token (JWT)
+→ Retorno JSON para o frontend
+
+---
+
+ 	- Logout:
+ 		Frontend(React) envia os tokens para o backend que valida usando o permission_classes e usa blacklist para invalidar o token
+React
+→ POST /api/auth/logout/
+→ Envia o refresh_token no body
+→ Backend:
+   - permission_classes = [IsAuthenticated]
+   - Blacklist do refresh_token
+→ Retorna 200 OK
+
+---
+
+ 	- PublicStore:
+ 		- SideBar:
+ 			- React faz o GET para o backend enviando o username do perfil exemplo: www.frostystore.com/SBrayanAlves
+ 			(React -> GET -> users.urls -> users.view -> users.serializers -> users.models -> banco de dados)
+ 			- Backend envia para o React os dados do User - profile_picture, username, first_name, last_name, bio - o react le esse dados e renderiza na tela
+ 			(users.models -> users.serializer -> users.views -> .json -> Sidebar.tsx -> renderiza na tela)React
+→ GET /api/users/SBrayanAlves/
+→ users.urls
+→ users.views
+→ users.serializers
+→ users.models
+→ Banco de dados
+→ JSON
+→ Sidebar.tsx
+
+---
+
+ 		- Showcase:
+ 			- React faz o GET para o backend enviando o username do perfil exemplo: www.frostystore.com/SBrayanAlves
+ 			(React -> GET -> urls -> view -> serializers -> models -> banco de dados)
+- Backend envia para o React o catalogo do relacionado ao User (foreignkey) - ProductImage, name, price - o react le esse dados e renderiza na tela
+ 			(catalog.models -> catalog.serializer -> catalog.views -> .json -> Showcase.tsx -> renderiza na tela)
+React
+→ GET /api/catalog/SBrayanAlves/
+→ catalog.urls
+→ catalog.views
+→ catalog.serializers
+→ catalog.models
+→ Banco de dados
+→ JSON
+→ Showcase.tsx
+
+---
+
+Dia seila irmão:
+Backend
+	users:
+		- Models.py ✓
+		- Admin.py ✓
+		- Forms.py ✓
+		- URLs.py ✓
+		- Serializers.py ✓
+		- Views.py ✓
+	catalog:
+		...
+
+Frontend:
+	...
+
+
+Dia 7: Criacao dos Serializers
+ 	- users:
+		
+ 	- catalog:
+ 	ProductReadSerializer
+ 	ProductWriteSerializer
+ 
