@@ -54,14 +54,14 @@ Publica
 	- GET FrostyStore.com ✓
 	- GET/POST FrostyStore.com/login ✓
 	- GET FrostyStore.com/<slug:slug> ✓
-    	- GET FrostyStore.com/<slug:slug>/p/id:product
+    - GET FrostyStore.com/<slug:slug>/p/id:product
 
 Privadas
 	- FrostyStore.com/dashboard/ ✓
 	- FrostyStore.com/dashboard/new-item/
 	- FrostyStore.com/dashboard/<id:product>/edit/ 
-	- FrostyStore.com/dashboard/profile/
-	- FrostyStore.com/dashboard/profile/edit
+	- FrostyStore.com/dashboard/me/
+	- FrostyStore.com/dashboard/me/edit
 
 ---
 
@@ -265,6 +265,12 @@ Backend
 		- Serializers.py ✓
 		- Views.py ✓
 	catalog:
+		- Models.py ✓
+		- Admin.py ✓
+		- URLs.py 
+		- Serializers.py 
+		- Views.py 
+
 		...
 
 Frontend:
@@ -277,4 +283,24 @@ Dia 7: Criacao dos Serializers
  	- catalog:
  	ProductReadSerializer
  	ProductWriteSerializer
+
+---
+Criação de Item + Edição + Delete
  
+Copiando Fluxo do instagram:
+Barra lateral com opção de Criar
+Ao clicar em Criar abre um modal na tela com a escolha da imagem, clica em avançar pagina de descricacao por fim clica em compartilhar -> post compartilhado
+
+Opcao de editar
+Ao ir no perfil clica na foto e abre o modal porem com a URL modificada exemplo instagram.com/p/DSlmCc2gNao/, tem a foto e a descrição da foto, tem a opção de 3 pontinho no canto superior direto para Excluir ou Editar foto
+Editar: quando clica em Editar abre um modal (em cima do outro, porem msm url) com as opções para editar ao clicar em salvar, o post foi editado
+Excluir: abre uma telinha perguntando se tem certeza, clica em excluir e o post some
+
+---
+
+Edição de Usuário 
+Fluxo
+Opcao no perfil
+ao clica e redirecionado para outra pagina /accounts/edit
+clica em salvar e pronto
+Barra lateral mantem e abre um novo conteúdo principal com as informações para editar

@@ -1,22 +1,16 @@
-// components/Sidebar.tsx
-interface User {
-  id: string;
-  username: string;
-  first_name: string;
-  last_name: string;
-  bio: string;
-  profile_picture: string | null;
-}
+import { Link } from "react-router-dom";
+import type { Seller } from "../../Types/Seller";
+import type { User } from "../../Types/User";
 
 interface SidebarProps {
-  data: User;
+  data: Seller | User;
   isOwner: boolean;
 }
 
 const BASE_URL = "http://localhost:8000";
 
 function Sidebar({ data, isOwner }: SidebarProps) {
-  
+
   const avatarUrl = (path: string | null) => {
     if (!path) return null;
     if (path.startsWith('http://') || path.startsWith('https://')) {
@@ -55,15 +49,18 @@ function Sidebar({ data, isOwner }: SidebarProps) {
               {data.bio || "Sem biografia."}
             </p>
 
-            {/* Renderização Condicional baseada na prop isOwner */}
             {isOwner && (
-              <a
-                href="/configuracoes"
+              <Link
+                // Se já estiver na edição, manda pro perfil, senão manda pra edição
+                to={location.pathname.includes('/edit') ? "/dashboard" : "/dashboard/me/edit"}
                 className="w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-slate-800 transition-colors"
               >
-                <i className="fa-regular fa-pen-to-square"></i>
-                Editar Perfil
-              </a>
+                {/* Ícone muda dependendo da tela */}
+                <i className={`fa-regular ${location.pathname.includes('/edit') ? 'fa-user' : 'fa-pen-to-square'}`}></i>
+                
+                {/* Texto muda dependendo da tela */}
+                {location.pathname.includes('/edit') ? 'Ver Perfil' : 'Editar Perfil'}
+              </Link>
             )}
           </div>
         </div>

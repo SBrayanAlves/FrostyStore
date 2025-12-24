@@ -1,20 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import api from '../services/api';
-import StoreLayout from '../layout/StoreLayout';
-
-interface User {
-  id: string;
-  username: string;
-  first_name: string;
-  last_name: string;
-  profile_picture: string | null;
-  bio: string;
-}
+import api from '../../services/Api';
+import StoreLayout from '../../layout/StoreLayout';
+import type { Seller } from '../../Types/Seller';
 
 function PublicStore() {
   const { slug } = useParams();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Seller | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

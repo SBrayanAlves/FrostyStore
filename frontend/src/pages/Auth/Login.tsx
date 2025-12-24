@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import api from "../services/api";
+import Header from "../../components/Global/Header";
+import Footer from "../../components/Global/Footer";
+import api from '../../services/Api';
 
 function Login() {
 
@@ -16,7 +16,7 @@ function Login() {
     setError("");
 
     try {
-      const response = await api.post("http://127.0.0.1:8000/api/auth/login/", {
+      const response = await api.post("auth/login/", {
         email,
         password,
       });
