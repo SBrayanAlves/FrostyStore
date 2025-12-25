@@ -34,7 +34,7 @@ class PublicUserSerializer(serializers.ModelSerializer):
 # ---------------------------------------------------------------
 # Serializer para acessar o dashboard e Perfil do Usuario autenticado 
 # DashBord ✓
-# Perfil 
+# Perfil ✓
 class PrivateUserSerializer(serializers.ModelSerializer):
 
 
@@ -42,9 +42,8 @@ class PrivateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id','username', 'first_name', 'last_name', 'profile_picture', 'bio', 'date_of_birth', 'location', 'phone_number', 'email')
 
-
 # ---------------------------------------------------------------
-# Serializer para atualizar o perfil do Usuario autenticado 
+# Serializer para atualizar o perfil do Usuario autenticado ✓
 class PostUpdateUserSerializer(serializers.ModelSerializer):
 
     

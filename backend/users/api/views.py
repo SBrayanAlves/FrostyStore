@@ -89,7 +89,7 @@ class PerfilUser(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 # ---------------------------------------------------------------
-# View para atualizar o perfil do Usuario autenticado 
+# View para atualizar o perfil do Usuario autenticado ✓
 class UpdateUser(APIView):
     permission_classes = [IsAuthenticated]
 

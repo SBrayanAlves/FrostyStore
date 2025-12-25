@@ -23,13 +23,13 @@ Diagramas:
         Cliente -> EntraEmContato() -> Futuramente eu vejo isso
 
         Usuario -> FazerLogin() ✓
-        Usuario -> Logout() 
-        Usuario -> CriarItem()
+        Usuario -> Logout() ✓
+        Usuario -> CriarItem() 
         Usuario -> ListarItem()
         Usuario -> VisualizarItem()
         Usuario -> AtualizarItem()
         Usuario -> DeleterItem()
-        Usuario -> EditarPerfil()
+        Usuario -> EditarPerfil() ✓
         Usuario -> AtivarItem() / DesativarItem()
         Usuario -> DeletarPerfil()
     
@@ -60,27 +60,27 @@ Privadas
 	- FrostyStore.com/dashboard/ ✓
 	- FrostyStore.com/dashboard/new-item/
 	- FrostyStore.com/dashboard/<id:product>/edit/ 
-	- FrostyStore.com/dashboard/me/
-	- FrostyStore.com/dashboard/me/edit
+	- FrostyStore.com/dashboard/me/ ✓
+	- FrostyStore.com/dashboard/me/edit ✓
 
 ---
 
 Telas:
-    - Tela de apresentacao do sistema: -> .com/
+    - Tela de apresentacao do sistema: -> .com/ ✓
     Detalhes:
         - Fundo Branco
         - Canto superior direito botao de login com redirect 
         - Logo no meio com alguns efeitos CSS 
         - Scroll pra baixo com informacoes do site/desenvolvimento
 
-    - Tela de Login: -> .com/login
+    - Tela de Login: -> .com/login ✓
     Detalhes:
         - Tipo de Insider
         - Tela simples minimalista com 1 div central e 3 botoes
         - Email - Senha - Logar
         - Logo da FrostyStore no canto superior esquerdo que leva pro inicio da pagina 
 
-    - Tela de Vitrine: -> .com/<username>/ 
+    - Tela de Vitrine: -> .com/<username>/ ✓
     Detalhes:
         3 Pedacos:
         (Pagina Base)
@@ -101,9 +101,14 @@ Telas:
     Detalhes:
         -
 
-    - Tela de Editar Perfil:
+    - Tela de Editar Perfil: .com/dashboard/me/edit ✓
     Detalhes:
-        - Quando clicar em "Meu Perfil" abrir um Modal tipo do Discord 
+        - Quando clicar em "Meu Perfil" deve ser redirecionado para uma nova tela porem mantendo a Sidebar, na parte principal vai ter as informacoes do usuario para serem editadas 
+        (Pagina /me/edit)
+            1. Header -> Ok
+            2. Barra lateral na esquerda com Foto, Nome e Bio do vendedor +  Meu Perfil -> Ok
+            3. Painel de edicao -> Ok
+            4. Footer -> Ok
 
 ---
 
@@ -123,7 +128,7 @@ Dia 2: Criacao da estrutura de pastas do projeto
 │   ├── config/
 │   │   ├── settings/
 │   │   │   ├── base.py
-│   │   │	 ├── dev.py
+│   │   │	├── dev.py
 │   │   │   ├── production.py
 │   │   ├── urls.py
 │   │   ├── wsgi.py
@@ -177,8 +182,8 @@ APPS: users & catalog
  		- https://www.frostystore.com/ -> Tela de apresentacao do site
  		- https://www.frostystore.com/login/ -> Tela de Login simples tipo da Insider
  		- https://www.frostystore.com/SbrayanAlves/ -> Tela visualizacao da Vitrine do vendedor
- 		- https://www.frostystore.com/SBrayanAlves/p/ -> Tela para produto especifico do vendedor 
-(Ideia fazer modal tipo instagram)
+ 		- https://www.frostystore.com/SBrayanAlves/p/123 -> Tela para produto especifico do vendedor 
+          (Ideia fazer modal tipo instagram)
 
  	URLs de api (backend):
  	permission_classes = [IsAuthenticated]
@@ -287,9 +292,11 @@ Dia 7: Criacao dos Serializers
 ---
 Criação de Item + Edição + Delete
  
-Copiando Fluxo do instagram:
-Barra lateral com opção de Criar
-Ao clicar em Criar abre um modal na tela com a escolha da imagem, clica em avançar pagina de descricacao por fim clica em compartilhar -> post compartilhado
+Usuario clica em + para abrir um modal (URL continua a mesma)
+Primeiro escolhe os dados referentes (Product)
+Depois escolha as imagens (ImageProdut)
+Por fim Publica o item
+frostystore.com/dashboard/new-item/
 
 Opcao de editar
 Ao ir no perfil clica na foto e abre o modal porem com a URL modificada exemplo instagram.com/p/DSlmCc2gNao/, tem a foto e a descrição da foto, tem a opção de 3 pontinho no canto superior direto para Excluir ou Editar foto
