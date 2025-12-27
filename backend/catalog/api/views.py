@@ -37,8 +37,8 @@ class UserProductsView(APIView):
 class ProductDetailView(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, pk):
-        product = get_object_or_404(Product, pk=pk, active=True)
+    def get(self, request, slug):
+        product = get_object_or_404(Product, slug=slug, active=True)
         serializer = ProductDetailSerializer(product)
         return Response(serializer.data, status=200)
     
