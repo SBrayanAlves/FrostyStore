@@ -19,19 +19,18 @@ Caracteristicas:
 Diagramas:
     - Diagrama de Caso de Uso:
         Cliente -> VisualizaPerfil() ✓
-        Cliente -> VisualizarItem()
-        Cliente -> EntraEmContato() -> Futuramente eu vejo isso
+        Cliente -> VisualizarItem() ✓
+        Cliente -> VisualizarDetalhesDoItem()
 
         Usuario -> FazerLogin() ✓
         Usuario -> Logout() ✓
         Usuario -> CriarItem() 
-        Usuario -> ListarItem()
-        Usuario -> VisualizarItem()
+        Usuario -> ListarItem() ✓
+        Usuario -> VisualizarItem() 
         Usuario -> AtualizarItem()
         Usuario -> DeleterItem()
         Usuario -> EditarPerfil() ✓
         Usuario -> AtivarItem() / DesativarItem()
-        Usuario -> DeletarPerfil()
     
     - Diagrama de Classe:
         User(AbstractUser):
@@ -179,17 +178,17 @@ Dia 5: Criacao das URLs
 APPS: users & catalog
 
  	URLs de paginas (frontend):
- 		- https://www.frostystore.com/ -> Tela de apresentacao do site
- 		- https://www.frostystore.com/login/ -> Tela de Login simples tipo da Insider
- 		- https://www.frostystore.com/SbrayanAlves/ -> Tela visualizacao da Vitrine do vendedor
+ 		- https://www.frostystore.com/ ✓ -> Tela de apresentacao do site
+ 		- https://www.frostystore.com/login/ ✓ -> Tela de Login simples tipo da Insider
+ 		- https://www.frostystore.com/SbrayanAlves/ ✓ -> Tela visualizacao da Vitrine do vendedor
  		- https://www.frostystore.com/SBrayanAlves/p/123 -> Tela para produto especifico do vendedor 
           (Ideia fazer modal tipo instagram)
 
  	URLs de api (backend):
  	permission_classes = [IsAuthenticated]
  		Users:
- 			- GET api/users/dashboard/ -> Vitrine do vendedor
- 			- POST api/users/dashboard/meu-perfil/ -> Editar proprio perfil
+ 			- GET api/users/dashboard/ -> ✓ Vitrine do vendedor
+ 			- POST api/users/dashboard/meu-perfil/ -> ✓ Editar proprio perfil
  		Catalog:
  			- POST api/catalog/dashboard/novo-item -> Cria um novo produto para a Vitrine do vendedor
  			- PUT api/catalog/dashboard/<item>/edit/ -> Editar um item especifico da Vitrine
