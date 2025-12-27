@@ -18,8 +18,8 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
     description: '',
     category: '', 
     brand: '',
-    voltage: '220V',
-    condition: '',
+    voltage: '110V', // Valor padrão deve bater com models.py
+    condition: 'Novo', // Valor padrão deve bater com models.py
   });
 
   // Imagens
@@ -45,16 +45,19 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
   
   // Passo 1: Criar Rascunho
   const handleStep1Submit = async () => {
+    // Validação básica
     if (!formData.name || !formData.price) return alert("Preencha nome e preço.");
-    
+    if (!formData.category || !formData.brand) return alert("Selecione a categoria e a marca.");
+
     try {
       setLoading(true);
-      const response = await api.post('dashboard/products/', formData);
+      // POST: Cria o produto (active=False por padrão no backend)
+      const response = await api.post('catalog/products/create/', formData);
       setCreatedProductId(response.data.id);
       setStep(2);
     } catch (error) {
       console.error(error);
-      alert("Erro ao salvar produto.");
+      alert("Erro ao salvar dados. Verifique se os campos estão corretos.");
     } finally {
       setLoading(false);
     }
@@ -66,21 +69,27 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
     
     try {
       setLoading(true);
-      // 1. Enviar Imagens
+      
+      // 1. Enviar Imagens (uma por uma)
       for (const image of selectedImages) {
         const data = new FormData();
         data.append('product', createdProductId);
         data.append('image', image);
-        await api.post('dashboard/images/', data, { headers: { 'Content-Type': 'multipart/form-data' }});
+        
+        // POST: Upload da imagem
+        await api.post('catalog/products/images/upload/', data, { 
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
       }
 
-      // 2. Publicar (Ativar)
-      await api.patch(`dashboard/products/${createdProductId}/`, { active: true });
+      // 2. Publicar (Ativar o produto)
+      // PATCH: Edita o produto para active=True usando o UUID criado
+      await api.patch(`catalog/products/edit/${createdProductId}/`, { active: true });
       
       setStep(3); // Sucesso
     } catch (error) {
       console.error(error);
-      alert("Erro ao enviar imagens.");
+      alert("Erro ao enviar imagens ou publicar.");
     } finally {
       setLoading(false);
     }
@@ -137,21 +146,66 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
           {/* STEP 1: DADOS */}
           {step === 1 && (
             <div className="space-y-6 animate-fade-in">
+              {/* Nome */}
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nome do Produto</label>
                 <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 font-medium" placeholder="Ex: Geladeira Brastemp" />
               </div>
 
+              {/* Preço e Categoria */}
               <div className="grid grid-cols-2 gap-5">
                  <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Preço (R$)</label>
                     <input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 font-medium" placeholder="0.00" />
                  </div>
-                 {/* Adicione os selects de Categoria aqui conforme necessário */}
+                 
+                 {/* Select de Categoria (UUIDs) */}
+                 <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoria</label>
+                    <select name="category" value={formData.category} onChange={handleChange} className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none">
+                        <option value="">Selecione...</option>
+                        <option value="d353d83a-775d-4250-a154-3fbb4e2a6626">Geladeira Inox</option>
+                        <option value="b9af6348-febb-455b-84a7-d9e56642ab0e">Geladeira Inverse</option>
+                        <option value="574b9512-a509-4986-8c29-304aec5332a5">Geladeira Branca</option>
+                        <option value="f3f2e566-5464-41dc-b274-523e29e06eda">Freezer Horizontal</option>
+                        <option value="d68ec895-5a46-4b78-b17f-03163b267897">Freezer Vertical</option>
+                        <option value="d68ec895-5a46-4b78-b17f-03163b267897">Cervejeiro</option>
+                        <option value="cd627815-2fca-4a22-9b97-3c6a0c9536c9">Frigobar</option>
+                        <option value="091bd359-37f2-48b6-af0c-9dfa8d787e1e">Maquina de Lavar e Secadora</option>
+
+                    </select>
+                 </div>
               </div>
               
-              {/* Adicione Selects de Marca, Voltagem, Condição aqui... */}
+               {/* Marca, Voltagem e Condição */}
                <div className="grid grid-cols-3 gap-4">
+                    {/* Select de Marca (UUIDs) */}
+                    <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Marca</label>
+                        <select name="brand" value={formData.brand} onChange={handleChange} className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none">
+                            <option value="">Selecione...</option>
+                            <option value="aa4c6147-a857-44fc-8c0c-7f82a8fcea6b">Ártico</option>
+                            <option value="a11f8083-6edb-4726-993b-91a28ca0b4e2">Black+Decker</option>
+                            <option value="ed273e1f-857c-4d8e-898b-17103ac55e56">Brastemp</option> 
+                            <option value="fc5de96f-f9f1-4cc6-b8a4-584feb6b1562">Britânia</option>
+                            <option value="d6b92300-8e57-4634-94d0-46c7d7ec0489">Conservex</option>
+                            <option value="2f032c4b-8ac9-4061-afd3-e1439e12506d">Consul</option>
+                            <option value="2bf4a3dd-135a-4104-8171-48687af29a24">Continental</option>
+                            <option value="ff3e0d67-f28b-4a88-ad44-d89dec334100">Dako</option>
+                            <option value="cd896cda-1d40-462b-973d-d81d5fb63133">EOS</option>
+                            <option value="9fe92294-dd8b-45fc-b50f-a17e595af50a">Esmaltec</option>
+                            <option value="a052609d-f500-4411-b033-b900fd417a47">EVOL</option>
+                            <option value="badc9b2d-62f4-4093-8a11-63bfeeda02ae">Hisense</option>
+                            <option value="0f83e349-1c50-490c-ac43-744edc5b69a9">LG</option>
+                            <option value="b8c4c855-9fb2-4250-9906-ed078600611f">Midea</option>
+                            <option value="7362eeea-7c88-4b79-9d29-092f151ae732">Panasonic</option>
+                            <option value="8f968add-b24a-4972-91c7-540a47143432">Philco</option>
+                            <option value="67f4cc76-b180-45f4-b2fd-b5942dc2d22a">Samsung</option>
+                            <option value="4b47db32-3200-4f39-96d4-c16a8ed5ecc4">Electrolux</option>
+                            <option value="f2d8fcb2-5b0d-4697-becf-18b958d130bf">Outro</option>
+                        </select>
+                    </div>
+
                     <div>
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Voltagem</label>
                         <select name="voltage" value={formData.voltage} onChange={handleChange} className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none">
@@ -160,12 +214,16 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
                             <option value="Bivolt">Bivolt</option>
                         </select>
                     </div>
+
                      <div>
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Condição</label>
                         <select name="condition" value={formData.condition} onChange={handleChange} className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none">
                             <option value="Novo">Novo</option>
                             <option value="Semi-novo">Semi-novo</option>
-                            <option value="Usado-Excelente">Excelente</option>
+                            <option value="Usado-Excelente">Usado (Excelente)</option>
+                            <option value="Usado-Bom">Usado (Bom)</option>
+                            <option value="Recondicionado">Recondicionado</option>
+                            <option value="Defeituoso">Defeituoso</option>
                         </select>
                     </div>
               </div>
@@ -194,9 +252,9 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
                               <img src={url} className="w-full h-full object-cover" />
                           </div>
                       ))}
-                       <div onClick={() => fileInputRef.current?.click()} className="aspect-square rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:text-brand-500 cursor-pointer">
-                          <i className="fa-solid fa-plus text-xl"></i>
-                       </div>
+                        <div onClick={() => fileInputRef.current?.click()} className="aspect-square rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:text-brand-500 cursor-pointer">
+                           <i className="fa-solid fa-plus text-xl"></i>
+                        </div>
                   </div>
               )}
               <input type="file" ref={fileInputRef} className="hidden" multiple accept="image/*" onChange={handleImageSelect} />
