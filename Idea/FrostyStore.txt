@@ -27,8 +27,8 @@ Diagramas:
         Usuario -> CriarItem() ✓
         Usuario -> ListarItem() ✓
         Usuario -> VisualizarItem() ✓
-        Usuario -> AtualizarItem()
-        Usuario -> DeleterItem()
+        Usuario -> AtualizarItem() ✓
+        Usuario -> DeleterItem() ✓
         Usuario -> EditarPerfil() ✓
     
     - Diagrama de Classe:

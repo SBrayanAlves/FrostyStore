@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -7,20 +6,23 @@ from  users.models import User
 from catalog.models import Product
 from .serializers import ClientProductDetailSerializer, ProductSerializer, ShowCaseProductSerializer, ImageProductSerializer, UserProductDetailSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.generics import ListAPIView
 
 # Create your views here.
 
 # --- CLiente Views ---
 # ---------------------------------------------------------------
 # View para acessar a vitrine do Usuario (cliente) ✓
-class ShowcaseView(APIView):
+class ShowcaseView(ListAPIView):
     permission_classes = [AllowAny]
+    serializer_class = ShowCaseProductSerializer
 
-    def get(self, request, slug):
+    def get_queryset(self):
+        slug = self.kwargs['slug']
         seller = get_object_or_404(User, slug=slug)
-        query = Product.objects.filter(seller=seller, active=True).select_related('category', 'brand', 'seller').prefetch_related('images')
-        serializer = ShowCaseProductSerializer(query, many=True)
-        return Response(serializer.data, status=200)
+        return Product.objects.filter(seller=seller, active=True)\
+            .select_related('category', 'brand', 'seller')\
+            .prefetch_related('images')
     
 # View para acessar o detalhe do produto pelo Cliente ✓
 class ProductDetailView(APIView):
@@ -34,14 +36,15 @@ class ProductDetailView(APIView):
 # --- Usuario Autenticado Views ---
 # ---------------------------------------------------------------
 # View para acessar os produtos do Usuario autenticado ✓
-class UserProductsView(APIView):
+class UserProductsView(ListAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = ShowCaseProductSerializer
 
-    def get(self, request):
-        user = request.user    
-        query = Product.objects.filter(seller=user).select_related('category', 'brand', 'seller').prefetch_related('images')
-        serializer = ShowCaseProductSerializer(query, many=True)
-        return Response(serializer.data, status=200)
+    def get_queryset(self):
+        user = self.request.user    
+        return Product.objects.filter(seller=user)\
+            .select_related('category', 'brand', 'seller')\
+            .prefetch_related('images')
 
 # View para acessar o detalhe do produto pelo Usuario autenticado ✓
 class UserProductDetailView(APIView):

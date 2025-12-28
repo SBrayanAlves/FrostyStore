@@ -1,0 +1,20 @@
+# 🎨 Frontend (React + Vite)
+
+### 🔴 Prioridade Alta (UX e Estabilidade)
+
+* [ ] **Feedback Visual (Toast):** Substituir todos os `alert("Sucesso")` e `confirm()` nativos do navegador por componentes de Toast (ex: `react-toastify` ou `sonner`) e Modais de confirmação customizados.
+* [ ] **Tratamento de Erros:** Criar telas ou mensagens amigáveis quando a API falhar (ex: "Não foi possível carregar os produtos"), em vez de deixar a tela em branco ou loading infinito.
+* [ ] **Variáveis de Ambiente:** Mover a URL da API (`http://localhost:8000`) para um arquivo `.env` (`VITE_API_URL`) para facilitar o deploy.
+
+### 🟡 Prioridade Média (Código e Performance)
+
+* [ ] **Componentização:** Extrair botões, inputs e cards repetidos para componentes genéricos (ex: `src/components/UI/Button.tsx`).
+* [ ] **Skeleton Loading:** Substituir o spinner simples (`fa-spin`) por "Skeletons" (aquelas caixas cinzas pulsantes) enquanto os dados carregam, melhorando a percepção de velocidade.
+* [ ] **Tipagem TypeScript:** Revisar os `any` implícitos e garantir que todas as interfaces (`Product`, `Seller`) estejam sincronizadas com o que o Backend retorna.
+* [ ] **Hook Personalizado:** Criar um hook `useAuth` ou usar Context API para gerenciar o estado do usuário logado globalmente, evitando passar `user` via props para todo lado (Prop Drilling).
+
+### 🟢 Prioridade Baixa (Refinamento)
+
+* [ ] **Lazy Loading:** Usar `React.lazy` para carregar as páginas (Dashboard, Login) apenas quando o usuário navegar para elas, diminuindo o tamanho do bundle inicial.
+* [ ] **Acessibilidade (a11y):** Adicionar atributos `aria-label` nos botões que são apenas ícones e garantir que o site seja navegável por teclado.
+* [ ] **SEO (Helmet):** Adicionar títulos dinâmicos na aba do navegador para cada loja (`FrostyStore | Loja do João`).

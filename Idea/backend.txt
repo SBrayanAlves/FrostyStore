@@ -1,0 +1,25 @@
+# 🚀 Backend (Django + DRF)
+
+### 🔴 Prioridade Alta (Crítico para Performance e Segurança)
+
+* [x] **Corrigir N+1 Queries:** Adicionar `.select_related('category', 'brand', 'seller')` e `.prefetch_related('images')` em todas as Views de listagem (`ShowcaseView`, `UserProductsView`). Isso vai reduzir drasticamente o número de consultas ao banco.
+* [x] **Implementar Paginação:** Adicionar `pagination_class` nas Views que listam produtos. Se um vendedor tiver 1.000 produtos, sua API atual vai travar tentando carregar tudo de uma vez.
+* [x] **Validação de Upload:** No `ProductImageSerializer`, validar:
+* Tamanho do arquivo (ex: máx 5MB).
+* Tipo de arquivo real (validar o cabeçalho do arquivo, não apenas a extensão `.jpg`).
+
+
+* [x] **Rate Limiting (Throttling):** Configurar `DEFAULT_THROTTLE_CLASSES` no `settings.py` para evitar ataques de força bruta ou sobrecarga por um único usuário.
+
+### 🟡 Prioridade Média (Arquitetura e Manutenção)
+
+* [x] **Refatorar Views:** Migrar de `APIView` (manual) para `generics.ListAPIView` ou `ModelViewSet`. Isso padroniza o código e te dá paginação e filtros de graça.
+* [x] **Indexação no Banco:** Adicionar `db_index=True` nos campos `slug`, `active` e `seller` no `models.py` para acelerar as buscas.
+* [ ] **Geração de Slug Robusta:** Melhorar a lógica do `save()` para garantir que slugs nunca se repitam (tratamento de colisão), usando algo como `django-autoslug` ou um loop `while`.
+* [x] **Variáveis de Ambiente:** Garantir que `SECRET_KEY`, `DEBUG` e credenciais de banco/AWS estejam em um arquivo `.env` e não no código.
+
+### 🟢 Prioridade Baixa (Melhorias Futuras)
+
+* [ ] **Cache:** Implementar cache com Redis para endpoints públicos muito acessados (como a vitrine principal).
+* [ ] **Testes Automatizados:** Aumentar a cobertura de testes em `tests.py`, focando em cenários de erro e permissões.
+* [ ] **Armazenamento S3:** Configurar `django-storages` para salvar imagens na AWS S3 (produção) em vez do disco local.

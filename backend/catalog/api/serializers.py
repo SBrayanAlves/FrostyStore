@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from catalog.models import Product
 from catalog.models import ProductImage
+from PIL import Image
 
 # ---------------------------------------------------------------
 # Serializer para criar um novo produto no dashboard do vendedor ✓
@@ -16,6 +17,21 @@ class ImageProductSerializer(serializers.ModelSerializer):
             "image",
             "created_at",
         ]
+
+    def validate_image(self, image):
+        if image:
+            if image.size > 5 * 1024 * 1024:
+                raise serializers.ValidationError('A imagem deve ter no máximo 5MB.')
+            try:
+                img = Image.open(image)
+                img.verify()
+            except Exception:
+                raise serializers.ValidationError('O arquivo enviado não é uma imagem válida.')
+
+            if img.format not in ['JPEG', 'PNG', 'JPG']:
+                raise serializers.ValidationError('Apenas formatos JPEG, PNG e JPG são permitidos.')
+                
+        return image
 
 # --- Cliente Serializers ---
 # ---------------------------------------------------------------

@@ -75,20 +75,20 @@ class Product(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
 
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name="products")
 
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
-    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True, db_index=True)
 
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT, related_name="products")
     voltage = models.CharField(max_length=10, choices=VoltageChoice.choices)
     condition = models.CharField(max_length=20, choices=ConditionChoice.choices)
 
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True, db_index=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
