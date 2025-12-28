@@ -1,28 +1,39 @@
 import { useEffect, useState } from 'react';
 import api from '../../services/Api';
-// 1. Correção do Import para bater com o arquivo criado acima
 import type { DetailsProduct } from '../../Types/DetailsProduct'; 
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   productSlug: string | null;
+  isOwner: boolean;
 }
 
-export default function ProductDetailModal({ isOpen, onClose, productSlug }: ModalProps) {
-  // 2. Uso da tipagem correta
+export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwner }: ModalProps) {
   const [product, setProduct] = useState<DetailsProduct | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null); // Estado para evitar tela branca
+  const [error, setError] = useState<string | null>(null);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
 
   useEffect(() => {
+    // Só executa se o modal estiver aberto e tivermos um slug
     if (isOpen && productSlug) {
       setLoading(true);
       setError(null);
+      
+      // Variável para guardar a promessa correta (Dono ou Público)
+      let request;
 
-      // Verifique se sua API precisa da barra final "/" ou não
-      api.get(`catalog/products/${productSlug}/`)
+      if (isOwner) {
+        // --- ROTA DO DONO (Dashboard) ---
+        request = api.get(`catalog/user/products/p/${productSlug}/`); 
+      } else {
+        // --- ROTA PÚBLICA (Vitrine) ---
+        request = api.get(`catalog/products/${productSlug}/`);
+      }
+
+      // Executa a requisição escolhida acima
+      request
         .then(res => {
             setProduct(res.data);
             setCurrentImgIndex(0);
@@ -30,13 +41,16 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug }: Mod
         .catch(err => {
             console.error("Erro ao carregar produto", err);
             setError("Não foi possível carregar os detalhes deste produto.");
+            setProduct(null);
         })
         .finally(() => setLoading(false));
+
     } else {
+        // Limpa tudo se fechar o modal
         setProduct(null);
         setError(null);
     }
-  }, [isOpen, productSlug]);
+  }, [isOpen, productSlug, isOwner]);
 
   const nextImage = () => {
     if (!product?.images) return;
@@ -77,7 +91,7 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug }: Mod
            </div>
         )}
 
-        {/* 2. Erro (Evita a tela branca) */}
+        {/* 2. Erro */}
         {!loading && error && (
            <div className="w-full h-full flex items-center justify-center bg-white flex-col gap-4 p-8 text-center">
               <i className="fa-solid fa-circle-exclamation text-4xl text-red-400"></i>
@@ -86,7 +100,7 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug }: Mod
            </div>
         )}
 
-        {/* 3. Conteúdo (Só renderiza se tiver produto e não estiver carregando) */}
+        {/* 3. Conteúdo */}
         {!loading && !error && product && (
           <>
             {/* ESQUERDA: FOTOS */}
@@ -94,7 +108,6 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug }: Mod
                 
                 {product.images && product.images.length > 0 ? (
                     <img 
-                        // AQUI O ERRO FOI CORRIGIDO (Tipagem agora aceita .image)
                         src={product.images[currentImgIndex].image} 
                         className="max-w-full max-h-full object-contain mix-blend-multiply" 
                         alt={product.name}
@@ -116,7 +129,6 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug }: Mod
                             <i className="fa-solid fa-chevron-right"></i>
                         </button>
 
-                        {/* Indicadores */}
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                             {product.images.map((_, idx) => (
                                 <div key={idx} className={`w-2 h-2 rounded-full shadow-sm transition-all ${idx === currentImgIndex ? 'bg-brand-500 scale-125' : 'bg-slate-300'}`}></div>
@@ -129,7 +141,6 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug }: Mod
             {/* DIREITA: INFORMAÇÕES */}
             <div className="w-full md:w-[40%] h-full flex flex-col bg-white border-l border-slate-100">
 
-                {/* Header Vendedor */}
                 <div className="h-16 shrink-0 border-b border-slate-100 flex items-center justify-between px-6 bg-white">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 font-bold border border-brand-200">
@@ -145,9 +156,7 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug }: Mod
                     </button>
                 </div>
 
-                {/* Conteúdo Scrollável */}
                 <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                    
                     <div className="flex items-center gap-2 text-xs font-semibold text-brand-600 mb-3 uppercase tracking-wider">
                         <span className="bg-brand-50 px-2 py-1 rounded-md">{product.category_name}</span>
                     </div>
@@ -161,7 +170,6 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug }: Mod
                         </span>
                     </div>
 
-                    {/* Chips de Especificação */}
                     <div className="grid grid-cols-2 gap-3 mb-6">
                         <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-500 shadow-sm"><i className="fa-solid fa-bolt"></i></div>
@@ -194,15 +202,25 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug }: Mod
                     </div>
                 </div>
 
-                {/* Footer */}
                 <div className="p-5 border-t border-slate-100 bg-slate-50/50 shrink-0">
                     <button className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2">
-                        <i className="fa-brands fa-whatsapp text-lg"></i>
-                        Tenho Interesse
+                        {isOwner ? (
+                           <>
+                             <i className="fa-solid fa-pen text-lg"></i>
+                             Editar Produto
+                           </>
+                        ) : (
+                           <>
+                             <i className="fa-brands fa-whatsapp text-lg"></i>
+                             Tenho Interesse
+                           </>
+                        )}
                     </button>
-                    <p className="text-center text-xs text-slate-400 mt-3 flex items-center justify-center gap-1">
-                        <i className="fa-solid fa-shield-halved"></i> Negociação segura via FrostyStore
-                    </p>
+                    {!isOwner && (
+                      <p className="text-center text-xs text-slate-400 mt-3 flex items-center justify-center gap-1">
+                          <i className="fa-solid fa-shield-halved"></i> Negociação segura via FrostyStore
+                      </p>
+                    )}
                 </div>
 
             </div>

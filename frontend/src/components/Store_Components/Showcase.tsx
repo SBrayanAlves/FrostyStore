@@ -1,18 +1,24 @@
-import { useNavigate, useParams } from 'react-router-dom'; // 1. Importar Hooks
+import { useNavigate, useParams } from 'react-router-dom';
 import type { Product } from "../../Types/Product";
 
 interface ShowcaseProps {
   products: Product[];
+  isOwner: boolean; // 1. Recebe a flag de dono
 }
 
-function Showcase({ products }: ShowcaseProps) {
+function Showcase({ products, isOwner }: ShowcaseProps) {
   const navigate = useNavigate();
-  const { slug: storeSlug } = useParams();
+  const { slug } = useParams(); // Slug da loja (só existe na versão pública)
 
-  // 3. Função que faz a mágica (Troca a URL)
   const handleOpenProduct = (productSlug: string) => {
-    // Navega para /slug-da-loja/p/slug-do-produto
-    navigate(`/${storeSlug}/p/${productSlug}`);
+    if (isOwner) {
+      // 2. Lógica para o Dono (Dashboard)
+      navigate(`/dashboard/p/${productSlug}`);
+    } else {
+      // 3. Lógica para o Cliente (Loja Pública)
+      // O slug vem da URL /:slug/
+      navigate(`/${slug}/p/${productSlug}`);
+    }
   };
 
   const getProductTag = (condition: string) => {
@@ -44,17 +50,20 @@ function Showcase({ products }: ShowcaseProps) {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Vitrine de Produtos</h1>
-          <p className="text-sm text-slate-500 mt-1">Confira as melhores ofertas selecionadas.</p>
+          <p className="text-sm text-slate-500 mt-1">
+            {isOwner ? "Gerencie seus produtos aqui." : "Confira as melhores ofertas selecionadas."}
+          </p>
         </div>
         <button className="text-sm font-medium text-slate-600 hover:text-brand-600 flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm transition-colors">
           <i className="fa-solid fa-arrow-down-short-wide"></i> Ordenar
         </button>
       </div>
 
-      {/* Empty State */}
       {products.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-2xl border border-slate-100">
-            <p className="text-slate-500">Este vendedor ainda não publicou produtos.</p>
+            <p className="text-slate-500">
+                {isOwner ? "Você ainda não tem produtos ativos." : "Este vendedor ainda não publicou produtos."}
+            </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -66,7 +75,6 @@ function Showcase({ products }: ShowcaseProps) {
             return (
                 <div key={product.id} className="group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-1">
                 
-                {/* Imagem Container */}
                 <div className="relative h-56 overflow-hidden bg-slate-50">
                     {tag && (
                     <span className={`absolute top-3 left-3 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm z-10 ${tag.color}`}>
@@ -80,21 +88,17 @@ function Showcase({ products }: ShowcaseProps) {
                         className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
                     />
                     
-                    {/* Botão Hover Overlay */}
                     <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                    {/* 4. Adicionei o onClick aqui */}
                     <button 
                         onClick={() => handleOpenProduct(product.slug)}
                         className="bg-white text-slate-900 px-4 py-2 rounded-full font-semibold text-sm shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-brand-50"
                     >
-                        Ver Detalhes
+                        {isOwner ? "Ver / Editar" : "Ver Detalhes"}
                     </button>
                     </div>
                 </div>
 
-                {/* Conteúdo do Card */}
                 <div className="p-5">
-                    {/* 5. Título Clicável */}
                     <h3 
                         onClick={() => handleOpenProduct(product.slug)}
                         className="font-semibold text-slate-900 text-lg leading-tight mb-1 group-hover:text-brand-600 transition-colors line-clamp-1 cursor-pointer"
@@ -116,13 +120,11 @@ function Showcase({ products }: ShowcaseProps) {
                         </span>
                     </div>
                     
-                    {/* 6. Botão de Ação (Troquei Cart por Eye/Seta já que é vitrine) */}
                     <button 
                         onClick={() => handleOpenProduct(product.slug)}
                         className="w-10 h-10 rounded-full bg-slate-50 text-slate-900 flex items-center justify-center hover:bg-brand-500 hover:text-white transition-colors"
                         title="Ver detalhes"
                     >
-                        {/* Como é vitrine e não tem carrinho, mudei o ícone para visualização */}
                         <i className="fa-solid fa-arrow-right"></i> 
                     </button>
                     </div>

@@ -8,7 +8,7 @@ import ProductDetailModal from '../../components/Modals/ProductDetailModal';
 
 function PublicStore() {
 
-  const {slugProduct} = useParams();
+  const { slugProduct } = useParams();
   const navigate = useNavigate();
 
   const { slug } = useParams();
@@ -56,6 +56,7 @@ function PublicStore() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         productSlug={slugProduct || null}
+        isOwner={false}
       />
     </>
   );

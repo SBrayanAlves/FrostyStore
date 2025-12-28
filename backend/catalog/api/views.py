@@ -5,11 +5,12 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from  users.models import User
 from catalog.models import Product
-from .serializers import ProductDetailSerializer, ProductSerializer, ShowCaseProductSerializer, ImageProductSerializer
+from .serializers import ClientProductDetailSerializer, ProductSerializer, ShowCaseProductSerializer, ImageProductSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 
 # Create your views here.
 
+# --- CLiente Views ---
 # ---------------------------------------------------------------
 # View para acessar a vitrine do Usuario (cliente) ✓
 class ShowcaseView(APIView):
@@ -21,6 +22,16 @@ class ShowcaseView(APIView):
         serializer = ShowCaseProductSerializer(query, many=True)
         return Response(serializer.data, status=200)
     
+# View para acessar o detalhe do produto pelo Cliente ✓
+class ProductDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, slug):
+        product = get_object_or_404(Product, slug=slug, active=True)
+        serializer = ClientProductDetailSerializer(product, context={'request': request})
+        return Response(serializer.data, status=200)
+
+# --- Usuario Autenticado Views ---
 # ---------------------------------------------------------------
 # View para acessar os produtos do Usuario autenticado ✓
 class UserProductsView(APIView):
@@ -31,17 +42,18 @@ class UserProductsView(APIView):
         query = Product.objects.filter(seller=user).order_by('active').select_related('category', 'brand', 'seller').prefetch_related('images')
         serializer = ShowCaseProductSerializer(query, many=True)
         return Response(serializer.data, status=200)
-    
-# ---------------------------------------------------------------
-# View para acessar o detalhe do produto pelo Cliente ✓
-class ProductDetailView(APIView):
-    permission_classes = [AllowAny]
+
+# View para acessar o detalhe do produto pelo Usuario autenticado ✓
+class UserProductDetailView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, slug):
-        product = get_object_or_404(Product, slug=slug, active=True)
-        serializer = ProductDetailSerializer(product, context={'request': request})
+        user = request.user
+        product = get_object_or_404(Product, slug=slug, seller=user)
+        serializer = ClientProductDetailSerializer(product, context={'request': request})
         return Response(serializer.data, status=200)
     
+# --- CRUD de Produtos Views ---
 # ---------------------------------------------------------------
 # View para criar novo produto pelo Usuario autenticado ✓
 class CreateProductView(APIView):
@@ -66,7 +78,7 @@ class AddProductImageView(APIView):
         
         serializer = ImageProductSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(product=product)
             return Response(serializer.data, status=200)
         return Response(serializer.errors, status=400)
      

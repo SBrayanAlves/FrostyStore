@@ -13,11 +13,64 @@ class ImageProductSerializer(serializers.ModelSerializer):
         model = ProductImage
         fields = [
             "id",
-            "product",
             "image",
             "created_at",
         ]
 
+# --- Cliente Serializers ---
+# ---------------------------------------------------------------
+# Serializer do Produto para exibir detalhes do produto na vitrine ✓
+class ClientProductDetailSerializer(serializers.ModelSerializer):
+
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    seller_name = serializers.CharField(source='seller.username', read_only=True)
+    brand_name = serializers.CharField(source='brand.name', read_only=True)
+    images = ImageProductSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "price",
+            "description",
+            "voltage",
+            "condition",
+            "seller_name",
+            "category_name",
+            "brand_name",
+            "images", 
+        ]
+
+# --- Usuario Autenticado Serializers ---
+# ---------------------------------------------------------------
+# Serializer do Produto para exibir detalhes do produto no dashboard do vendedor ✓
+class UserProductDetailSerializer(serializers.ModelSerializer):
+
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    seller_name = serializers.CharField(source='seller.username', read_only=True)
+    brand_name = serializers.CharField(source='brand.name', read_only=True)
+    images = ImageProductSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "price",
+            "description",
+            "voltage",
+            "condition",
+            "active",
+            "seller_name",
+            "category_name",
+            "brand_name",
+            "images",
+        ]
+        read_only_fields = ['created_at', 'updated_at', 'slug']
+        
 # ---------------------------------------------------------------
 # Serializer do Produto para criar e editar produto no dashboard do vendedor ✓
 class ProductSerializer(serializers.ModelSerializer):
@@ -43,6 +96,7 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['created_at', 'updated_at', 'slug']
 
+# --- Cliente & User Serializers ---
 # ---------------------------------------------------------------
 # Serializer do Produto para listar produtos na vitrine ✓
 class ShowCaseProductSerializer(serializers.ModelSerializer):
@@ -59,32 +113,6 @@ class ShowCaseProductSerializer(serializers.ModelSerializer):
             "slug",
             "price",
             "condition",
-            "brand_name",
-            "images", 
-        ]
-
-# ---------------------------------------------------------------
-# Serializer do Produto para exibir detalhes do produto na vitrine ✓
-class ProductDetailSerializer(serializers.ModelSerializer):
-
-    category_name = serializers.CharField(source='category.name', read_only=True)
-    seller_name = serializers.CharField(source='seller.username', read_only=True)
-    brand_name = serializers.CharField(source='brand.name', read_only=True)
-    images = ImageProductSerializer(many=True, read_only=True)
-    
-    class Meta:
-        model = Product
-        fields = [
-            "id",
-            "name",
-            "slug",
-            "price",
-            "description",
-            "voltage",
-            "condition",
-            "active",
-            "seller_name",
-            "category_name",
             "brand_name",
             "images", 
         ]

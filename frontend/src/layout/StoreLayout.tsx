@@ -25,7 +25,7 @@ function StoreLayout({ user, products, isLoading, isOwner }: StoreLayout) {
 
         <main className="flex-1 pt-24 pb-12 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row gap-8 lg:gap-12">
           <Sidebar data={user} isOwner={isOwner} />
-          <Showcase products={products} />
+          <Showcase products={products} isOwner={isOwner}  />
         </main>
 
         <Footer />
