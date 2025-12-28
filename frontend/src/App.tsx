@@ -15,6 +15,7 @@ function App() {
         <Route path="/dashboard/me/edit" element={<PerfilUser />} />
 
         <Route path="/:slug" element={<PublicStore />} />
+        <Route path="/:slug/p/:slugProduct" element={<PublicStore />} />
       </Routes>
     </Router>
   )

@@ -1,11 +1,19 @@
+import { useNavigate, useParams } from 'react-router-dom'; // 1. Importar Hooks
 import type { Product } from "../../Types/Product";
 
 interface ShowcaseProps {
   products: Product[];
 }
 
-
 function Showcase({ products }: ShowcaseProps) {
+  const navigate = useNavigate();
+  const { slug: storeSlug } = useParams();
+
+  // 3. Função que faz a mágica (Troca a URL)
+  const handleOpenProduct = (productSlug: string) => {
+    // Navega para /slug-da-loja/p/slug-do-produto
+    navigate(`/${storeSlug}/p/${productSlug}`);
+  };
 
   const getProductTag = (condition: string) => {
     switch (condition) {
@@ -22,17 +30,10 @@ function Showcase({ products }: ShowcaseProps) {
   };
 
   const getCoverImage = (product: Product) => {
-    // Verifica se existe o array e se tem itens dentro
     if (product.images && product.images.length > 0) {
-        // Acessa a propriedade .image do primeiro objeto
         const imgUrl = product.images[0].image;
-        
-        // DICA: Se o Django retornar apenas "/media/...", você pode precisar concatenar a URL base da API
-        // Exemplo: return `http://localhost:8000${imgUrl}`;
-        // Se já vier completa, deixe assim:
         return `http://localhost:8000${imgUrl}`; 
     }
-    // Placeholder
     return "https://placehold.co/400x400?text=Sem+Imagem";
   };
 
@@ -56,12 +57,10 @@ function Showcase({ products }: ShowcaseProps) {
             <p className="text-slate-500">Este vendedor ainda não publicou produtos.</p>
         </div>
       ) : (
-        /* Grid de Produtos */
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product) => {
             
             const tag = getProductTag(product.condition);
-            // Convertendo a string "2500.00" para numero
             const priceNumber = Number(product.price);
 
             return (
@@ -76,14 +75,18 @@ function Showcase({ products }: ShowcaseProps) {
                     )}
                     
                     <img
-                    src={getCoverImage(product)}
-                    alt={product.name}
-                    className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                        src={getCoverImage(product)}
+                        alt={product.name}
+                        className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
                     />
                     
                     {/* Botão Hover Overlay */}
                     <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                    <button className="bg-white text-slate-900 px-4 py-2 rounded-full font-semibold text-sm shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                    {/* 4. Adicionei o onClick aqui */}
+                    <button 
+                        onClick={() => handleOpenProduct(product.slug)}
+                        className="bg-white text-slate-900 px-4 py-2 rounded-full font-semibold text-sm shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-brand-50"
+                    >
                         Ver Detalhes
                     </button>
                     </div>
@@ -91,11 +94,14 @@ function Showcase({ products }: ShowcaseProps) {
 
                 {/* Conteúdo do Card */}
                 <div className="p-5">
-                    <h3 className="font-semibold text-slate-900 text-lg leading-tight mb-1 group-hover:text-brand-600 transition-colors line-clamp-1">
+                    {/* 5. Título Clicável */}
+                    <h3 
+                        onClick={() => handleOpenProduct(product.slug)}
+                        className="font-semibold text-slate-900 text-lg leading-tight mb-1 group-hover:text-brand-600 transition-colors line-clamp-1 cursor-pointer"
+                    >
                     {product.name}
                     </h3>
                     
-                    {/* Exibe Marca e Condição */}
                     <p className="text-xs text-slate-400 mb-4">
                         {product.brand_name} • {product.condition}
                     </p>
@@ -110,8 +116,14 @@ function Showcase({ products }: ShowcaseProps) {
                         </span>
                     </div>
                     
-                    <button className="w-10 h-10 rounded-full bg-slate-50 text-slate-900 flex items-center justify-center hover:bg-brand-500 hover:text-white transition-colors">
-                        <i className="fa-solid fa-cart-shopping"></i>
+                    {/* 6. Botão de Ação (Troquei Cart por Eye/Seta já que é vitrine) */}
+                    <button 
+                        onClick={() => handleOpenProduct(product.slug)}
+                        className="w-10 h-10 rounded-full bg-slate-50 text-slate-900 flex items-center justify-center hover:bg-brand-500 hover:text-white transition-colors"
+                        title="Ver detalhes"
+                    >
+                        {/* Como é vitrine e não tem carrinho, mudei o ícone para visualização */}
+                        <i className="fa-solid fa-arrow-right"></i> 
                     </button>
                     </div>
                 </div>

@@ -1,3 +1,8 @@
+export interface ProductImage {
+    id?: number;
+    image: string;
+}
+
 interface DetailsProduct {
     id: string;
     name: string;
@@ -10,7 +15,7 @@ interface DetailsProduct {
     seller_name: string;
     category_name: string;
     brand_name: string;
-    images: string[];
+    images: ProductImage[];
 }
 
 export type { DetailsProduct };

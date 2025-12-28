@@ -1,15 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate} from 'react-router-dom';
 import api from '../../services/Api';
 import StoreLayout from '../../layout/StoreLayout';
 import type { Seller } from '../../Types/Seller';
 import type { Product } from "../../Types/Product";
+import ProductDetailModal from '../../components/Modals/ProductDetailModal';
 
 function PublicStore() {
+
+  const {slugProduct} = useParams();
+  const navigate = useNavigate();
+
   const { slug } = useParams();
   const [user, setUser] = useState<Seller | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const isModalOpen = !!slugProduct;
 
   useEffect(() => {
     if (!slug) return;
@@ -32,13 +39,25 @@ function PublicStore() {
 
   }, [slug]);
 
+  const handleCloseModal = () => {
+    navigate(`/${slug}`);
+  };
+
   return (
-    <StoreLayout
-      user={user} 
-      products={products}
-      isLoading={loading} 
-      isOwner={false}
-    />
+    <>
+      <StoreLayout
+        user={user} 
+        products={products}
+        isLoading={loading} 
+        isOwner={false}
+      />
+
+      <ProductDetailModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        productSlug={slugProduct || null}
+      />
+    </>
   );
 }
 
