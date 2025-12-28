@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from  users.models import User
 from catalog.models import Product
-from .serializers import ClientProductDetailSerializer, ProductSerializer, ShowCaseProductSerializer, ImageProductSerializer
+from .serializers import ClientProductDetailSerializer, ProductSerializer, ShowCaseProductSerializer, ImageProductSerializer, UserProductDetailSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 
 # Create your views here.
@@ -39,7 +39,7 @@ class UserProductsView(APIView):
 
     def get(self, request):
         user = request.user    
-        query = Product.objects.filter(seller=user).order_by('active').select_related('category', 'brand', 'seller').prefetch_related('images')
+        query = Product.objects.filter(seller=user).select_related('category', 'brand', 'seller').prefetch_related('images')
         serializer = ShowCaseProductSerializer(query, many=True)
         return Response(serializer.data, status=200)
 
@@ -50,7 +50,7 @@ class UserProductDetailView(APIView):
     def get(self, request, slug):
         user = request.user
         product = get_object_or_404(Product, slug=slug, seller=user)
-        serializer = ClientProductDetailSerializer(product, context={'request': request})
+        serializer = UserProductDetailSerializer(product, context={'request': request})
         return Response(serializer.data, status=200)
     
 # --- CRUD de Produtos Views ---

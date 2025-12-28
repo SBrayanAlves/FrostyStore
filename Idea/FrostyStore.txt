@@ -20,17 +20,16 @@ Diagramas:
     - Diagrama de Caso de Uso:
         Cliente -> VisualizaPerfil() ✓
         Cliente -> VisualizarItem() ✓
-        Cliente -> VisualizarDetalhesDoItem()
+        Cliente -> VisualizarDetalhesDoItem() ✓
 
         Usuario -> FazerLogin() ✓
         Usuario -> Logout() ✓
-        Usuario -> CriarItem() 
+        Usuario -> CriarItem() ✓
         Usuario -> ListarItem() ✓
-        Usuario -> VisualizarItem() 
+        Usuario -> VisualizarItem() ✓
         Usuario -> AtualizarItem()
         Usuario -> DeleterItem()
         Usuario -> EditarPerfil() ✓
-        Usuario -> AtivarItem() / DesativarItem()
     
     - Diagrama de Classe:
         User(AbstractUser):
@@ -53,11 +52,11 @@ Publica
 	- GET FrostyStore.com ✓
 	- GET/POST FrostyStore.com/login ✓
 	- GET FrostyStore.com/<slug:slug> ✓
-    - GET FrostyStore.com/<slug:slug>/p/id:product
+    - GET FrostyStore.com/<slug:slug>/p/id:product ✓
 
 Privadas
 	- FrostyStore.com/dashboard/ ✓
-	- FrostyStore.com/dashboard/new-item/
+	- FrostyStore.com/dashboard/new-item/ ✓
 	- FrostyStore.com/dashboard/<id:product>/edit/ 
 	- FrostyStore.com/dashboard/me/ ✓
 	- FrostyStore.com/dashboard/me/edit ✓
@@ -88,11 +87,11 @@ Telas:
             3. Vitrine com os produtos cadastrados com foto nome e preco -> ...
             4. Footer -> Ok
 
-    - Tela de Visualizacao: -> .com/<username>/<produto>/
+    - Tela de Visualizacao: -> .com/<username>/p/<produto>/ ✓
     Detalhes:
         - 
 
-    - Tela de Criar Item:
+    - Tela de Criar Item: -> .com/dashboard/ ✓
     Detalhes:
         - 
 

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import api from '../../services/Api';
 import type { DetailsProduct } from '../../Types/DetailsProduct'; 
+// 1. Import do Modal de Edição (Certifique-se que o arquivo existe em components/Modals/EditProductModal.tsx)
+import EditProductModal from './EditItemModal';
 
 interface ModalProps {
   isOpen: boolean;
@@ -10,29 +12,35 @@ interface ModalProps {
 }
 
 export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwner }: ModalProps) {
+
+  // Não usamos mais navigate para editar, pois abriremos um modal
   const [product, setProduct] = useState<DetailsProduct | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // 2. Estado para controlar o Modal de Edição
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   useEffect(() => {
-    // Só executa se o modal estiver aberto e tivermos um slug
     if (isOpen && productSlug) {
       setLoading(true);
       setError(null);
+      setIsMenuOpen(false);
       
-      // Variável para guardar a promessa correta (Dono ou Público)
       let request;
 
       if (isOwner) {
         // --- ROTA DO DONO (Dashboard) ---
+        // Traz dados sensíveis/completos para edição
         request = api.get(`catalog/user/products/p/${productSlug}/`); 
       } else {
         // --- ROTA PÚBLICA (Vitrine) ---
-        request = api.get(`catalog/products/${productSlug}/`);
+        // Traz dados públicos
+        request = api.get(`catalog/products/p/${productSlug}/`);
       }
 
-      // Executa a requisição escolhida acima
       request
         .then(res => {
             setProduct(res.data);
@@ -46,7 +54,6 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
         .finally(() => setLoading(false));
 
     } else {
-        // Limpa tudo se fechar o modal
         setProduct(null);
         setError(null);
     }
@@ -60,6 +67,46 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
   const prevImage = () => {
     if (!product?.images) return;
     setCurrentImgIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
+  };
+
+  const handleShare = () => {
+    if (!product) return;
+    const url = `${window.location.origin}/${product.seller_name}/p/${product.slug}`;
+    
+    navigator.clipboard.writeText(url)
+      .then(() => alert("Link copiado para a área de transferência!"))
+      .catch(() => alert("Erro ao copiar link."));
+    
+    setIsMenuOpen(false);
+  };
+
+  // 3. Abre o modal de edição em vez de navegar
+  const handleEdit = () => {
+    setIsMenuOpen(false);
+    setIsEditModalOpen(true); 
+  };
+
+  // 4. Atualiza os dados na tela instantaneamente após edição
+  const handleProductUpdate = (updatedProduct: DetailsProduct) => {
+    setProduct(updatedProduct);
+  };
+
+  const handleDelete = () => {
+    if (!product) return;
+    
+    if (confirm("Tem certeza que deseja excluir este produto?")) {
+        api.delete(`catalog/products/delete/${product.id}/`)
+            .then(() => {
+                alert("Produto excluído com sucesso!");
+                onClose();
+                window.location.reload();
+            })
+            .catch(err => {
+                console.error("Erro ao excluir", err);
+                alert("Erro ao excluir produto.");
+            });
+    }
+    setIsMenuOpen(false);
   };
 
   if (!isOpen) return null;
@@ -76,14 +123,10 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
       {/* Card Modal */}
       <div className="bg-white w-full max-w-6xl h-[90vh] md:h-[85vh] rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-2xl relative z-10 animate-zoom-in">
         
-        {/* Botão Fechar Mobile */}
         <button onClick={onClose} className="absolute top-4 right-4 z-20 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center md:hidden">
             <i className="fa-solid fa-times"></i>
         </button>
 
-        {/* --- ESTADOS DE RENDERIZAÇÃO --- */}
-
-        {/* 1. Loading */}
         {loading && (
            <div className="w-full h-full flex items-center justify-center bg-white flex-col gap-2">
               <i className="fa-solid fa-circle-notch fa-spin text-4xl text-brand-500"></i>
@@ -91,7 +134,6 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
            </div>
         )}
 
-        {/* 2. Erro */}
         {!loading && error && (
            <div className="w-full h-full flex items-center justify-center bg-white flex-col gap-4 p-8 text-center">
               <i className="fa-solid fa-circle-exclamation text-4xl text-red-400"></i>
@@ -100,7 +142,6 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
            </div>
         )}
 
-        {/* 3. Conteúdo */}
         {!loading && !error && product && (
           <>
             {/* ESQUERDA: FOTOS */}
@@ -119,7 +160,6 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
                     </div>
                 )}
 
-                {/* Setas de Navegação */}
                 {product.images && product.images.length > 1 && (
                     <>
                         <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-900 w-10 h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110">
@@ -139,9 +179,10 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
             </div>
 
             {/* DIREITA: INFORMAÇÕES */}
-            <div className="w-full md:w-[40%] h-full flex flex-col bg-white border-l border-slate-100">
-
-                <div className="h-16 shrink-0 border-b border-slate-100 flex items-center justify-between px-6 bg-white">
+            <div className="w-full md:w-[40%] h-full flex flex-col bg-white border-l border-slate-100 relative">
+                
+                {/* HEADER COM MENU */}
+                <div className="h-16 shrink-0 border-b border-slate-100 flex items-center justify-between px-6 bg-white relative z-30">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 font-bold border border-brand-200">
                              {product.seller_name ? product.seller_name.charAt(0).toUpperCase() : 'V'}
@@ -151,9 +192,55 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
                             <span className="text-xs text-slate-500">Vendedor Verificado</span>
                         </div>
                     </div>
-                    <button onClick={onClose} className="hidden md:block text-slate-400 hover:text-slate-900 transition-colors">
-                        <i className="fa-solid fa-times text-lg"></i>
-                    </button>
+
+                    <div className="flex items-center gap-2">
+                        {/* MENU 3 PONTINHOS */}
+                        <div className="relative">
+                            <button 
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-500 flex items-center justify-center transition-colors"
+                            >
+                                <i className="fa-solid fa-ellipsis-vertical text-lg"></i>
+                            </button>
+
+                            {isMenuOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)}></div>
+                                    <div className="absolute right-0 top-10 w-48 bg-white rounded-lg shadow-xl border border-slate-100 py-1 z-20 animate-fade-in-down">
+                                        
+                                        {isOwner && (
+                                            <button 
+                                                onClick={handleEdit}
+                                                className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-600 flex items-center gap-2"
+                                            >
+                                                <i className="fa-solid fa-pen-to-square"></i> Editar Produto
+                                            </button>
+                                        )}
+
+                                        {isOwner && (
+                                            <button 
+                                                onClick={handleDelete}
+                                                className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 border-b border-slate-100"
+                                            >
+                                                <i className="fa-solid fa-trash-can"></i> Excluir Produto
+                                            </button>
+                                        )}
+
+                                        <button 
+                                            onClick={handleShare}
+                                            className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600 flex items-center gap-2"
+                                        >
+                                            <i className="fa-solid fa-share-nodes"></i> Compartilhar
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <button onClick={onClose} className="hidden md:block text-slate-400 hover:text-slate-900 transition-colors">
+                            <i className="fa-solid fa-times text-lg"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
@@ -203,7 +290,11 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
                 </div>
 
                 <div className="p-5 border-t border-slate-100 bg-slate-50/50 shrink-0">
-                    <button className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2">
+                    <button 
+                        // Se for dono, abre edição. Se não, abre compartilhar/whatsapp
+                        onClick={isOwner ? handleEdit : undefined} 
+                        className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2"
+                    >
                         {isOwner ? (
                            <>
                              <i className="fa-solid fa-pen text-lg"></i>
@@ -227,6 +318,17 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
           </>
         )}
       </div>
+
+      {/* 5. Renderiza o Modal de Edição (Overlay) */}
+      {product && (
+        <EditProductModal 
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            product={product}
+            onSuccess={handleProductUpdate}
+        />
+      )}
+
     </div>
   );
 }

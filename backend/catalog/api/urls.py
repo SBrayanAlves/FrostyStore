@@ -8,7 +8,7 @@ urlpatterns = [
 
     # --- ÁREA PRIVADA (Dashboard do Vendedor) ---
     path('products/', views.UserProductsView.as_view(), name='user-products'), # ✓ URL de listagem User Authenticated
-    path('user/products/p/<slug:slug>/', views.ProductDetailView.as_view(), name='user-product-detail'), # ✓ URL de detalhe User Authenticated
+    path('user/products/p/<slug:slug>/', views.UserProductDetailView.as_view(), name='user-product-detail'), # ✓ URL de detalhe User Authenticated
     
     # --- CRUD de Produtos ---
     path('products/create/', views.CreateProductView.as_view(), name='create-product'), # ✓ URL de criacao User Authenticated
