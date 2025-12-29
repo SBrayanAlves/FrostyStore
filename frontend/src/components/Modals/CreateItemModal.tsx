@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import api from '../../services/Api';
+import { toast } from 'react-toastify';
 
 interface ModalProps {
   isOpen: boolean;
@@ -46,8 +47,8 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
   // Passo 1: Criar Rascunho
   const handleStep1Submit = async () => {
     // Validação básica
-    if (!formData.name || !formData.price) return alert("Preencha nome e preço.");
-    if (!formData.category || !formData.brand) return alert("Selecione a categoria e a marca.");
+    if (!formData.name || !formData.price) return toast.success("Preencha nome e preço.");
+    if (!formData.category || !formData.brand) return toast.success("Selecione a categoria e a marca.");
 
     try {
       setLoading(true);
@@ -57,7 +58,7 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
       setStep(2);
     } catch (error) {
       console.error(error);
-      alert("Erro ao salvar dados. Verifique se os campos estão corretos.");
+      toast.success("Erro ao salvar dados. Verifique se os campos estão corretos.");
     } finally {
       setLoading(false);
     }
@@ -89,7 +90,7 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
       setStep(3); // Sucesso
     } catch (error) {
       console.error(error);
-      alert("Erro ao enviar imagens ou publicar.");
+      toast.success("Erro ao enviar imagens ou publicar.");
     } finally {
       setLoading(false);
     }

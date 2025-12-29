@@ -3,6 +3,7 @@ import api from '../../services/Api';
 import type { DetailsProduct } from '../../Types/DetailsProduct'; 
 // 1. Import do Modal de Edição (Certifique-se que o arquivo existe em components/Modals/EditProductModal.tsx)
 import EditProductModal from './EditItemModal';
+import { toast } from 'react-toastify';
 
 interface ModalProps {
   isOpen: boolean;
@@ -74,8 +75,8 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
     const url = `${window.location.origin}/${product.seller_name}/p/${product.slug}`;
     
     navigator.clipboard.writeText(url)
-      .then(() => alert("Link copiado para a área de transferência!"))
-      .catch(() => alert("Erro ao copiar link."));
+      .then(() => toast.success("Link copiado para a área de transferência!"))
+      .catch(() => toast.success("Erro ao copiar link."));
     
     setIsMenuOpen(false);
   };
@@ -97,13 +98,13 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
     if (confirm("Tem certeza que deseja excluir este produto?")) {
         api.delete(`catalog/products/delete/${product.id}/`)
             .then(() => {
-                alert("Produto excluído com sucesso!");
+                toast.success("Produto excluído com sucesso!");
                 onClose();
                 window.location.reload();
             })
             .catch(err => {
                 console.error("Erro ao excluir", err);
-                alert("Erro ao excluir produto.");
+                toast.success("Erro ao excluir produto.");
             });
     }
     setIsMenuOpen(false);

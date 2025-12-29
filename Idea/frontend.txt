@@ -2,7 +2,7 @@
 
 ### 🔴 Prioridade Alta (UX e Estabilidade)
 
-* [ ] **Feedback Visual (Toast):** Substituir todos os `alert("Sucesso")` e `confirm()` nativos do navegador por componentes de Toast (ex: `react-toastify` ou `sonner`) e Modais de confirmação customizados.
+* [ ] **Feedback Visual (Toast):** Substituir todos os `toast.success("Sucesso")` e `confirm()` nativos do navegador por componentes de Toast (ex: `react-toastify` ou `sonner`) e Modais de confirmação customizados.
 * [ ] **Tratamento de Erros:** Criar telas ou mensagens amigáveis quando a API falhar (ex: "Não foi possível carregar os produtos"), em vez de deixar a tela em branco ou loading infinito.
 * [ ] **Variáveis de Ambiente:** Mover a URL da API (`http://localhost:8000`) para um arquivo `.env` (`VITE_API_URL`) para facilitar o deploy.
 

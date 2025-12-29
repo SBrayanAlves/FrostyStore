@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/Api';
 import type { DetailsProduct } from '../../Types/DetailsProduct';
+import { toast } from 'react-toastify';
 
 interface EditModalProps {
   isOpen: boolean;
@@ -53,13 +54,13 @@ export default function EditProductModal({ isOpen, onClose, product, onSuccess }
     try {
         const response = await api.patch(`catalog/products/edit/${product.id}/`, formData);
         
-        alert("Produto atualizado com sucesso!");
+        toast.success("Produto atualizado com sucesso!");
         onSuccess(response.data);
         onClose();
         
     } catch (error) {
         console.error("Erro ao editar produto:", error);
-        alert("Erro ao salvar alterações. Verifique os dados e tente novamente.");
+        toast.success("Erro ao salvar alterações. Verifique os dados e tente novamente.");
     } finally {
         setLoading(false);
     }

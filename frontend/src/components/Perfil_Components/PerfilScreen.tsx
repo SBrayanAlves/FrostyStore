@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import type { User } from "../../Types/User";
 import api from "../../services/Api";
+import { toast } from 'react-toastify';
 
 interface UserPerfilProps {
   user: User;
@@ -85,7 +86,7 @@ function PerfilScreen({ user }: UserPerfilProps) {
       
     } catch (error) {
       console.error("Erro ao atualizar:", error);
-      alert("Erro ao salvar alterações. Verifique os dados.");
+      toast.success("Erro ao salvar alterações. Verifique os dados.");
     } finally {
       setIsSaving(false);
     }
