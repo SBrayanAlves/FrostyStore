@@ -51,20 +51,20 @@ class PostUpdateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id','first_name', 'last_name', 'profile_picture', 'bio', 'date_of_birth', 'location', 'phone_number')
 
-    def validate_profile_picture(self, profile_picture):
-        if profile_picture:
-            if profile_picture.size > 2 * 1024 * 1024:
+    def validate_profile_picture(self, value):
+        if value:
+            if value.size > 2 * 1024 * 1024:
                 raise serializers.ValidationError('A imagem deve ter no máximo 2MB.')
             try:
-                img = Image.open(profile_picture)
+                img = Image.open(value)
                 img.verify()
             except Exception:
                 raise serializers.ValidationError('O arquivo enviado não é uma imagem válida.')
 
-            if img.format not in ['JPEG', 'PNG']:
-                raise serializers.ValidationError('Apenas formatos JPEG e PNG são permitidos.')
+            if img.format not in ['JPEG', 'PNG', 'JPG']:
+                raise serializers.ValidationError('Apenas formatos JPEG, JPG e PNG são permitidos.')
                 
-        return profile_picture
+        return value
             
     def validate_bio(self, bio):
         if bio:

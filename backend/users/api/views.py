@@ -19,21 +19,18 @@ class Login(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        try:
-            serializer = UserLoginSerializer(data=request.data, context={'request': request})
-            if serializer.is_valid():
-                user = serializer.validated_data['user']
-                refresh = RefreshToken.for_user(user)
-                return Response({
-                    'message': 'Login successful',
-                    'user_id': user.id,
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                })
-            else:
-                return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        except Exception as e:
-            return Response({'error': str(e)}, status=500)
+        serializer = UserLoginSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.validated_data['user']
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'message': 'Login successful',
+                'user_id': user.id,
+                'username': user.username,
+                'slug': user.slug,
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_200_OK)
         
 # ---------------------------------------------------------------
 # View para Logout de Usuario ✓
@@ -43,11 +40,13 @@ class Logout(APIView):
     def post(self, request):
         try:
             refresh_token = request.data.get('refresh')
+            if not refresh_token:
+                return Response({'error': 'Refresh token obrigatório'}, status=400)
             token = RefreshToken(refresh_token)
             token.blacklist()
-            return Response({'message': 'Logout successful'} , status=status.HTTP_205_RESET_CONTENT)
-        except Exception as e:
-            return Response({'error': "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Logout realizado'}, status=status.HTTP_205_RESET_CONTENT)
+        except Exception:
+            return Response({'error': "Token inválido ou expirado"}, status=status.HTTP_400_BAD_REQUEST)
         
 # ---------------------------------------------------------------
 # View para acessar o dashboard do Usuario (cliente) ✓
@@ -55,12 +54,9 @@ class ClientDashboard(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, slug):
-        try:
-            user = get_object_or_404(User, slug=slug)
-            serializer = PublicUserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        user = get_object_or_404(User, slug=slug)
+        serializer = PublicUserSerializer(user, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 # ---------------------------------------------------------------
 # View para acessar o dashboard do Usuario autenticado ✓
@@ -68,12 +64,9 @@ class UserDashboard(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        try:
-            user = request.user
-            serializer = PrivateUserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'error': str(e)}, status=500)
+        user = request.user
+        serializer = PrivateUserSerializer(user, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
         
 # ---------------------------------------------------------------
 # View para acessar o perfil do Usuario autenticado ✓
@@ -81,12 +74,9 @@ class PerfilUser(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        try:
-            user = request.user
-            serializer = PrivateUserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        user = request.user
+        serializer = PrivateUserSerializer(user, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
         
 # ---------------------------------------------------------------
 # View para atualizar o perfil do Usuario autenticado ✓
@@ -94,13 +84,8 @@ class UpdateUser(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request):
-        try:
-            user = request.user
-            serializer = PostUpdateUserSerializer(user, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({'message': 'Profile updated successfully'}, status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        user = request.user
+        serializer = PostUpdateUserSerializer(user, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Profile updated successfully'}, status=status.HTTP_200_OK)
