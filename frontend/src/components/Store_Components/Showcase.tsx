@@ -3,7 +3,7 @@ import type { Product } from "../../Types/Product";
 
 interface ShowcaseProps {
   products: Product[];
-  isOwner: boolean; // Essa prop define se mostra ou não as opções de dono
+  isOwner: boolean;
 }
 
 function Showcase({ products, isOwner }: ShowcaseProps) {
@@ -97,7 +97,7 @@ function Showcase({ products, isOwner }: ShowcaseProps) {
             
             // --- LÓGICA DE SEGURANÇA VISUAL ---
             // Se isOwner for falso, statusTag será null e não renderizará nada
-            const statusTag = isOwner ? getProductStatus(product.active) : null;
+            const statusTag = isOwner ? getProductStatus(product.active ?? false) : null;
             
             const priceNumber = Number(product.price);
 
