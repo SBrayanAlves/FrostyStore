@@ -112,6 +112,33 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['created_at', 'updated_at', 'slug']
 
+# ---------------------------------------------------------------
+# Editar Produto Serializer ✓
+class EditProductSerializer(serializers.ModelSerializer):
+    
+    seller = serializers.CharField(read_only=True)
+    images = ImageProductSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "seller",
+            "category",
+            "name",
+            "price",
+            "description",
+            "slug",
+            "brand",
+            "voltage",
+            "condition",
+            "active",
+            "images",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ['created_at', 'updated_at', 'slug', 'seller', 'images']
+
 # --- Cliente & User Serializers ---
 # ---------------------------------------------------------------
 # Serializer do Produto para listar produtos na vitrine ✓

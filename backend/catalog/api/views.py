@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from  users.models import User
 from catalog.models import Product
-from .serializers import ClientProductDetailSerializer, ProductSerializer, ShowCaseProductSerializer, ImageProductSerializer, UserProductDetailSerializer
+from .serializers import ClientProductDetailSerializer, EditProductSerializer, ProductSerializer, ShowCaseProductSerializer, ImageProductSerializer, UserProductDetailSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.generics import ListAPIView
 
@@ -94,7 +94,7 @@ class EditProductView(APIView):
         user = request.user
         product = get_object_or_404(Product, pk=pk, seller=user)
         data = request.data.copy()
-        serializer = ProductSerializer(product, data=data, partial=True)
+        serializer = EditProductSerializer(product, data=data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=200)

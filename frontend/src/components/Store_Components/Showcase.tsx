@@ -70,11 +70,6 @@ function Showcase({ products, isOwner }: ShowcaseProps) {
                 : "Confira as melhores ofertas selecionadas."}
           </p>
         </div>
-        
-        <button className="text-sm font-medium text-slate-600 hover:text-brand-600 flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm transition-all hover:shadow-md active:scale-95 w-fit">
-          <i className="fa-solid fa-arrow-down-short-wide"></i> 
-          <span className="hidden sm:inline">Mais Recentes</span>
-        </button>
       </div>
 
       {products.length === 0 ? (
