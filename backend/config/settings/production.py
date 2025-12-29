@@ -14,7 +14,8 @@ if ALLOWED_HOSTS:
 
 # --- CORS (Quem pode acessar a API) ---
 # Aqui vai a URL do Frontend na Vercel
-CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+CORS_ALLOWED_ORIGINS_ENV = os.getenv("CORS_ALLOWED_ORIGINS", "")
+CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS_ENV.split(",") if CORS_ALLOWED_ORIGINS_ENV else []
 
 # Database (PostgreSQL do Render)
 DATABASES = {
