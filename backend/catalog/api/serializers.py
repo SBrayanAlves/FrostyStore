@@ -129,6 +129,7 @@ class ShowCaseProductSerializer(serializers.ModelSerializer):
             "slug",
             "price",
             "condition",
+            "active",
             "brand_name",
             "images", 
         ]

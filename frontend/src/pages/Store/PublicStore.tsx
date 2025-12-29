@@ -29,8 +29,9 @@ function PublicStore() {
         api.get(`catalog/products/${cleanSlug}`) 
     ])
     .then(([userRes, productRes]) => {
+      const productList = productRes.data.results || productRes.data;
+          setProducts(productList);
         setUser(userRes.data);
-        setProducts(productRes.data);
     })
     .catch(err => {
         console.error("Erro ao carregar loja:", err);

@@ -4,9 +4,6 @@ from . import views
 urlpatterns = [
     # ====================================================
     # 1. ROTAS ESPECÍFICAS DO VENDEDOR (CRUD & DASHBOARD)
-    # ====================================================
-    # Devem vir primeiro para não serem confundidas com slugs
-    
     # Listagem (Dashboard)
     path('products/', views.UserProductsView.as_view(), name='user-products'),
     

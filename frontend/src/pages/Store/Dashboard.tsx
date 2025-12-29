@@ -25,7 +25,11 @@ function Dashboard() {
     ])
     .then(([userRes, productRes]) => {
         setMe(userRes.data);
-        setProducts(productRes.data);
+        
+        // --- CORREÇÃO AQUI ---
+        // Verifica se veio paginado (.results) ou lista pura
+        const productList = productRes.data.results || productRes.data; 
+        setProducts(productList);
     })
     .catch(err => {
       console.error("Erro ao carregar loja:", err);

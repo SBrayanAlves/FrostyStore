@@ -11,6 +11,7 @@ interface Product {
     slug: string;
     price: number;
     condition: string;
+    active?: boolean;
     brand_name: string;
     images: ProductImage[];
 }
