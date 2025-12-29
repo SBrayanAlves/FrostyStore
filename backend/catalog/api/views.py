@@ -1,9 +1,12 @@
+import re
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+import urllib
 from  users.models import User
 from catalog.models import Product
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from .serializers import ClientProductDetailSerializer, EditProductSerializer, ProductSerializer, ShowCaseProductSerializer, ImageProductSerializer, UserProductDetailSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.generics import ListAPIView
@@ -111,3 +114,38 @@ class DeleteProductView(APIView):
         product = get_object_or_404(Product, pk=pk, seller=user)
         product.delete()
         return Response({"detail": "Produto deletado com sucesso."}, status=200)
+
+# ---------------------------------------------------------------
+# View EXCLUSIVA para contato via WhatsApp (Cliente interessado) ✓
+class ContactSellerView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
+    def get(self, request, slug):
+        product = get_object_or_404(Product, slug=slug, active=True)
+        
+        try:
+            raw_phone = product.seller.phone_number
+        except AttributeError:
+            raw_phone = None
+
+        if not raw_phone:
+             return redirect(f'https://www.frostystore.com/{slug}')
+
+        clean_phone = re.sub(r'\D', '', raw_phone)
+        
+        if len(clean_phone) <= 11:
+            clean_phone = f"55{clean_phone}"
+
+        text = (
+            f"Olá!\n"
+            f"Vi seu anúncio do *{product.name}* por *R${product.price}* "
+            f"na *FrostyStore*.\n"
+            f"Poderia me passar mais detalhes?"
+        )
+
+        encoded_text = urllib.parse.quote(text)
+        
+        whatsapp_url = f"https://wa.me/{clean_phone}?text={encoded_text}"
+        
+        return redirect(whatsapp_url)

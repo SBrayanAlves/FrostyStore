@@ -81,6 +81,23 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
     setIsMenuOpen(false);
   };
 
+  const handleWhatsApp = () => {
+    if (!product) return;
+
+    // 1. Pegamos a URL base da API (Ex: http://localhost:8000/api)
+    // Se você não usa variáveis de ambiente ainda, pode colocar a string fixa: 'http://localhost:8000/api'
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
+    // 2. Montamos a URL completa para o endpoint de redirecionamento
+    // Baseado no seu log anterior, a rota é: /catalog/products/<slug>/contact/
+    // Removemos barras duplas caso existam
+    const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const targetUrl = `${cleanBaseUrl}/catalog/products/${product.slug}/contact/`;
+
+    // 3. Abrimos em uma nova aba. O Backend vai registrar o clique e mandar pro Zap.
+    window.open(targetUrl, '_blank');
+  };
+
   // 3. Abre o modal de edição em vez de navegar
   const handleEdit = () => {
     setIsMenuOpen(false);
@@ -308,20 +325,20 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
 
                 <div className="p-5 border-t border-slate-100 bg-slate-50/50 shrink-0">
                     <button 
-                        // Se for dono, abre edição. Se não, abre compartilhar/whatsapp
-                        onClick={isOwner ? handleEdit : undefined} 
+                        // MUDANÇA AQUI: Se for dono -> Edita. Se não -> Chama o Zap
+                        onClick={isOwner ? handleEdit : handleWhatsApp} 
                         className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2"
                     >
                         {isOwner ? (
-                           <>
-                             <i className="fa-solid fa-pen text-lg"></i>
-                             Editar Produto
-                           </>
+                            <>
+                                <i className="fa-solid fa-pen text-lg"></i>
+                                Editar Produto
+                            </>
                         ) : (
-                           <>
-                             <i className="fa-brands fa-whatsapp text-lg"></i>
-                             Tenho Interesse
-                           </>
+                            <>
+                                <i className="fa-brands fa-whatsapp text-lg"></i>
+                                Tenho Interesse
+                            </>
                         )}
                     </button>
                     {!isOwner && (

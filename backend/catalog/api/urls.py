@@ -27,6 +27,9 @@ urlpatterns = [
     # Detalhe Público do Produto
     path('products/p/<slug:slug>/', views.ProductDetailView.as_view(), name='product-detail'),
 
+    # Contato com o Vendedor via WhatsApp
+    path('products/<slug:slug>/contact/', views.ContactSellerView.as_view(), name='product-contact'),
+
     # Vitrine do Vendedor (Showcase)
     path('products/<slug:slug>/', views.ShowcaseView.as_view(), name='showcase'),
 ]
