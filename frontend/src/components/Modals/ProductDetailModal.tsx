@@ -95,18 +95,34 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
   const handleDelete = () => {
     if (!product) return;
     
+    // O confirm nativo é feio, mas funcional. 
+    // Futuramente podemos criar um "DeleteConfirmationModal".
     if (confirm("Tem certeza que deseja excluir este produto?")) {
-        api.delete(`catalog/products/delete/${product.id}/`)
-            .then(() => {
-                toast.success("Produto excluído com sucesso!");
-                onClose();
+        
+        // ✨ A MÁGICA DO TOASTIFY: toast.promise
+        // Ele gerencia os 3 estados (Carregando, Sucesso, Erro) sozinho
+        toast.promise(
+            api.delete(`catalog/products/delete/${product.id}/`),
+            {
+                pending: 'Excluindo produto...',
+                success: 'Produto excluído com sucesso! 🗑️',
+                error: 'Erro ao excluir produto. Tente novamente. ❌'
+            }
+        )
+        .then(() => {
+            onClose(); // Fecha o modal
+            
+            // Dá 1.5s para o usuário ler o Toast antes de recarregar a tela
+            setTimeout(() => {
                 window.location.reload();
-            })
-            .catch(err => {
-                console.error("Erro ao excluir", err);
-                toast.success("Erro ao excluir produto.");
-            });
+            }, 1500);
+        })
+        .catch(err => {
+            console.error("Erro ao excluir", err);
+            // O toast.promise já exibiu o erro visualmente no 'error' acima
+        });
     }
+    
     setIsMenuOpen(false);
   };
 
