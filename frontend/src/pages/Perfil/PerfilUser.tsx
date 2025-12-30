@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../../services/Api";
+import api from "../../services/api";
 import PerfilLayout from "../../layout/PerfilLayout";
 import type { User } from "../../Types/User";
 

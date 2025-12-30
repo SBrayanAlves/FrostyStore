@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import type { User } from "../../Types/User";
-import api from "../../services/Api";
+import api from "../../services/api";
 import { toast } from 'react-toastify';
 
 interface UserPerfilProps {

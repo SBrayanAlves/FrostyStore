@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import api from "../../services/Api";
+import api from "../../services/api";
 
 function Header() {
   const navigate = useNavigate();
