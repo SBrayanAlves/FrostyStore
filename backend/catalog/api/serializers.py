@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from catalog.models import Product
 from catalog.models import ProductImage
+from catalog.models import Category
+from catalog.models import Brand
 from PIL import Image
 
 # ---------------------------------------------------------------
@@ -86,6 +88,18 @@ class UserProductDetailSerializer(serializers.ModelSerializer):
             "images",
         ]
         read_only_fields = ['created_at', 'updated_at', 'slug']
+
+# ---------------------------------------------------------------
+# --- Serializers Auxiliares ---
+class CategorySelectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+class BrandSelectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = ['id', 'name']
         
 # ---------------------------------------------------------------
 # Serializer do Produto para criar e editar produto no dashboard do vendedor ✓

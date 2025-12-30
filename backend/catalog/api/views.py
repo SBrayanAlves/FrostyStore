@@ -5,11 +5,12 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404, redirect
 import urllib
 from  users.models import User
-from catalog.models import Product
+from catalog.models import Brand, Category, Product
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from .serializers import ClientProductDetailSerializer, EditProductSerializer, ProductSerializer, ShowCaseProductSerializer, ImageProductSerializer, UserProductDetailSerializer
+from .serializers import BrandSelectSerializer, CategorySelectSerializer, ClientProductDetailSerializer, EditProductSerializer, ProductSerializer, ShowCaseProductSerializer, ImageProductSerializer, UserProductDetailSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.generics import ListAPIView
+from rest_framework import generics
 
 # Create your views here.
 
@@ -58,6 +59,20 @@ class UserProductDetailView(APIView):
         product = get_object_or_404(Product, slug=slug, seller=user)
         serializer = UserProductDetailSerializer(product, context={'request': request})
         return Response(serializer.data, status=200)
+    
+# --- Views Auxiliares (Listagem) ---
+
+class CategoryListView(generics.ListAPIView):
+    """Retorna lista de categorias (ID e Nome) para o frontend"""
+    queryset = Category.objects.all()
+    serializer_class = CategorySelectSerializer
+    permission_classes = [AllowAny]
+
+class BrandListView(generics.ListAPIView):
+    """Retorna lista de marcas (ID e Nome) para o frontend"""
+    queryset = Brand.objects.all()
+    serializer_class = BrandSelectSerializer
+    permission_classes = [AllowAny]
     
 # --- CRUD de Produtos Views ---
 # ---------------------------------------------------------------

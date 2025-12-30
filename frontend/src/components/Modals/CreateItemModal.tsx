@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react'; // Adicionado useEffect
 import api from '../../services/api';
 import { toast } from 'react-toastify';
 
@@ -7,10 +7,20 @@ interface ModalProps {
   onClose: () => void;
 }
 
+// Interface para os itens que vêm da API
+interface OptionType {
+  id: string;
+  name: string;
+}
+
 function CreateProductModal({ isOpen, onClose }: ModalProps) {
   const [step, setStep] = useState(1); // 1: Dados, 2: Fotos, 3: Sucesso
   const [loading, setLoading] = useState(false);
   const [createdProductId, setCreatedProductId] = useState<string | null>(null);
+
+  // --- NOVOS ESTADOS PARA AS LISTAS DINÂMICAS ---
+  const [categoriesList, setCategoriesList] = useState<OptionType[]>([]);
+  const [brandsList, setBrandsList] = useState<OptionType[]>([]);
 
   // Dados do Formulário
   const [formData, setFormData] = useState({
@@ -19,14 +29,36 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
     description: '',
     category: '', 
     brand: '',
-    voltage: '110V', // Valor padrão deve bater com models.py
-    condition: 'Novo', // Valor padrão deve bater com models.py
+    voltage: '110V',
+    condition: 'Novo',
   });
 
   // Imagens
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // --- BUSCAR DADOS DO BACKEND AO ABRIR ---
+  useEffect(() => {
+    if (isOpen) {
+        const fetchOptions = async () => {
+            try {
+                // Usamos Promise.all para carregar os dois ao mesmo tempo
+                const [catRes, brandRes] = await Promise.all([
+                    api.get('catalog/categories/'),
+                    api.get('catalog/brands/')
+                ]);
+                
+                setCategoriesList(catRes.data);
+                setBrandsList(brandRes.data);
+            } catch (error) {
+                console.error("Erro ao carregar categorias/marcas", error);
+                toast.error("Erro ao carregar opções do servidor.");
+            }
+        };
+        fetchOptions();
+    }
+  }, [isOpen]);
 
   // --- HANDLERS ---
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -46,19 +78,17 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
   
   // Passo 1: Criar Rascunho
   const handleStep1Submit = async () => {
-    // Validação básica
-    if (!formData.name || !formData.price) return toast.success("Preencha nome e preço.");
-    if (!formData.category || !formData.brand) return toast.success("Selecione a categoria e a marca.");
+    if (!formData.name || !formData.price) return toast.warning("Preencha nome e preço.");
+    if (!formData.category || !formData.brand) return toast.warning("Selecione a categoria e a marca.");
 
     try {
       setLoading(true);
-      // POST: Cria o produto (active=False por padrão no backend)
       const response = await api.post('catalog/products/create/', formData);
       setCreatedProductId(response.data.id);
       setStep(2);
     } catch (error) {
       console.error(error);
-      toast.success("Erro ao salvar dados. Verifique se os campos estão corretos.");
+      toast.error("Erro ao salvar dados. Verifique os campos.");
     } finally {
       setLoading(false);
     }
@@ -71,26 +101,24 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
     try {
       setLoading(true);
       
-      // 1. Enviar Imagens (uma por uma)
+      // 1. Enviar Imagens
       for (const image of selectedImages) {
         const data = new FormData();
         data.append('product', createdProductId);
         data.append('image', image);
         
-        // POST: Upload da imagem
         await api.post('catalog/products/images/upload/', data, { 
             headers: { 'Content-Type': 'multipart/form-data' }
         });
       }
 
-      // 2. Publicar (Ativar o produto)
-      // PATCH: Edita o produto para active=True usando o UUID criado
+      // 2. Publicar (Ativar)
       await api.patch(`catalog/products/edit/${createdProductId}/`, { active: true });
       
       setStep(3); // Sucesso
     } catch (error) {
       console.error(error);
-      toast.success("Erro ao enviar imagens ou publicar.");
+      toast.error("Erro ao enviar imagens ou publicar.");
     } finally {
       setLoading(false);
     }
@@ -160,50 +188,32 @@ function CreateProductModal({ isOpen, onClose }: ModalProps) {
                     <input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 font-medium" placeholder="0.00" />
                  </div>
                  
-                 {/* Select de Categoria (UUIDs) */}
+                 {/* Select de Categoria DINÂMICO */}
                  <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoria</label>
                     <select name="category" value={formData.category} onChange={handleChange} className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none">
                         <option value="">Selecione...</option>
-                        <option value="d353d83a-775d-4250-a154-3fbb4e2a6626">Geladeira Inox</option>
-                        <option value="b9af6348-febb-455b-84a7-d9e56642ab0e">Geladeira Inverse</option>
-                        <option value="574b9512-a509-4986-8c29-304aec5332a5">Geladeira Branca</option>
-                        <option value="f3f2e566-5464-41dc-b274-523e29e06eda">Freezer Horizontal</option>
-                        <option value="d68ec895-5a46-4b78-b17f-03163b267897">Freezer Vertical</option>
-                        <option value="d68ec895-5a46-4b78-b17f-03163b267897">Cervejeiro</option>
-                        <option value="cd627815-2fca-4a22-9b97-3c6a0c9536c9">Frigobar</option>
-                        <option value="091bd359-37f2-48b6-af0c-9dfa8d787e1e">Maquina de Lavar e Secadora</option>
-
+                        {categoriesList.map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                                {cat.name}
+                            </option>
+                        ))}
                     </select>
                  </div>
               </div>
               
                {/* Marca, Voltagem e Condição */}
                <div className="grid grid-cols-3 gap-4">
-                    {/* Select de Marca (UUIDs) */}
+                    {/* Select de Marca DINÂMICO */}
                     <div>
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Marca</label>
                         <select name="brand" value={formData.brand} onChange={handleChange} className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none">
                             <option value="">Selecione...</option>
-                            <option value="aa4c6147-a857-44fc-8c0c-7f82a8fcea6b">Ártico</option>
-                            <option value="a11f8083-6edb-4726-993b-91a28ca0b4e2">Black+Decker</option>
-                            <option value="ed273e1f-857c-4d8e-898b-17103ac55e56">Brastemp</option> 
-                            <option value="fc5de96f-f9f1-4cc6-b8a4-584feb6b1562">Britânia</option>
-                            <option value="d6b92300-8e57-4634-94d0-46c7d7ec0489">Conservex</option>
-                            <option value="2f032c4b-8ac9-4061-afd3-e1439e12506d">Consul</option>
-                            <option value="2bf4a3dd-135a-4104-8171-48687af29a24">Continental</option>
-                            <option value="ff3e0d67-f28b-4a88-ad44-d89dec334100">Dako</option>
-                            <option value="cd896cda-1d40-462b-973d-d81d5fb63133">EOS</option>
-                            <option value="9fe92294-dd8b-45fc-b50f-a17e595af50a">Esmaltec</option>
-                            <option value="a052609d-f500-4411-b033-b900fd417a47">EVOL</option>
-                            <option value="badc9b2d-62f4-4093-8a11-63bfeeda02ae">Hisense</option>
-                            <option value="0f83e349-1c50-490c-ac43-744edc5b69a9">LG</option>
-                            <option value="b8c4c855-9fb2-4250-9906-ed078600611f">Midea</option>
-                            <option value="7362eeea-7c88-4b79-9d29-092f151ae732">Panasonic</option>
-                            <option value="8f968add-b24a-4972-91c7-540a47143432">Philco</option>
-                            <option value="67f4cc76-b180-45f4-b2fd-b5942dc2d22a">Samsung</option>
-                            <option value="4b47db32-3200-4f39-96d4-c16a8ed5ecc4">Electrolux</option>
-                            <option value="f2d8fcb2-5b0d-4697-becf-18b958d130bf">Outro</option>
+                            {brandsList.map((brand) => (
+                                <option key={brand.id} value={brand.id}>
+                                    {brand.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
 

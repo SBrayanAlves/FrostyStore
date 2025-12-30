@@ -6,6 +6,8 @@ urlpatterns = [
     # 1. ROTAS ESPECÍFICAS DO VENDEDOR (CRUD & DASHBOARD)
     # Listagem (Dashboard)
     path('products/', views.UserProductsView.as_view(), name='user-products'),
+    path('categories/', views.CategoryListView.as_view(), name='category-list'),
+    path('brands/', views.BrandListView.as_view(), name='brand-list'),
     
     # Criação
     path('products/create/', views.CreateProductView.as_view(), name='create-product'),
