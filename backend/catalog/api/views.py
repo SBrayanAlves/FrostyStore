@@ -67,12 +67,14 @@ class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySelectSerializer
     permission_classes = [AllowAny]
+    pagination_class = None
 
 class BrandListView(generics.ListAPIView):
     """Retorna lista de marcas (ID e Nome) para o frontend"""
     queryset = Brand.objects.all()
     serializer_class = BrandSelectSerializer
     permission_classes = [AllowAny]
+    pagination_class = None
     
 # --- CRUD de Produtos Views ---
 # ---------------------------------------------------------------
