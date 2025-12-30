@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../../services/Api';
+import api from '../../services/api';
 import type { DetailsProduct } from '../../Types/DetailsProduct'; 
 // 1. Import do Modal de Edição (Certifique-se que o arquivo existe em components/Modals/EditProductModal.tsx)
 import EditProductModal from './EditItemModal';

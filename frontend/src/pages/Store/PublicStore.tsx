@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate} from 'react-router-dom';
-import api from '../../services/Api';
+import api from '../../services/api';
 import StoreLayout from '../../layout/StoreLayout';
 import type { Seller } from '../../Types/Seller';
 import type { Product } from "../../Types/Product";

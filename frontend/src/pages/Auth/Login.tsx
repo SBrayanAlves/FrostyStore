@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Global/Header";
 import Footer from "../../components/Global/Footer";
-import api from '../../services/Api';
+import api from '../../services/api';
 
 function Login() {
 

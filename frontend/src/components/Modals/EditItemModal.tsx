@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '../../services/Api';
+import api from '../../services/api';
 import type { DetailsProduct } from '../../Types/DetailsProduct';
 import { toast } from 'react-toastify';
 

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import api from '../../services/Api';
+import api from '../../services/api';
 import { toast } from 'react-toastify';
 
 interface ModalProps {
