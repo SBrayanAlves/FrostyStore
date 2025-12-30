@@ -25,7 +25,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('first_name', 'last_name', 'phone_number', 'date_of_birth')
         }),
         ("Perfil", {
-            'fields': ('profile_picture', 'get_profile_picture_preview', 'username', 'bio', 'location')
+            'fields': ('profile_picture', 'get_profile_picture_preview', 'username', 'slug', 'bio', 'location')
         }),
         ("Permissões", {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
