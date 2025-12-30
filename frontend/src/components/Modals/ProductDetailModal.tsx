@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../services/api';
 import type { DetailsProduct } from '../../Types/DetailsProduct'; 
-// 1. Import do Modal de Edição (Certifique-se que o arquivo existe em components/Modals/EditProductModal.tsx)
 import EditProductModal from './EditItemModal';
 import { toast } from 'react-toastify';
 
@@ -14,15 +13,24 @@ interface ModalProps {
 
 export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwner }: ModalProps) {
 
-  // Não usamos mais navigate para editar, pois abriremos um modal
   const [product, setProduct] = useState<DetailsProduct | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // 2. Estado para controlar o Modal de Edição
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // --- CORREÇÃO 1: Travar o scroll do site principal (fundo) ---
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'; // Trava
+    } else {
+      document.body.style.overflow = 'unset'; // Destrava
+    }
+    // Cleanup ao desmontar
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && productSlug) {
@@ -33,12 +41,8 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
       let request;
 
       if (isOwner) {
-        // --- ROTA DO DONO (Dashboard) ---
-        // Traz dados sensíveis/completos para edição
         request = api.get(`catalog/user/products/p/${productSlug}/`); 
       } else {
-        // --- ROTA PÚBLICA (Vitrine) ---
-        // Traz dados públicos
         request = api.get(`catalog/products/p/${productSlug}/`);
       }
 
@@ -84,27 +88,18 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
   const handleWhatsApp = () => {
     if (!product) return;
 
-    // 1. Pegamos a URL base da API (Ex: http://localhost:8000/api)
-    // Se você não usa variáveis de ambiente ainda, pode colocar a string fixa: 'http://localhost:8000/api'
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-
-    // 2. Montamos a URL completa para o endpoint de redirecionamento
-    // Baseado no seu log anterior, a rota é: /catalog/products/<slug>/contact/
-    // Removemos barras duplas caso existam
     const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
     const targetUrl = `${cleanBaseUrl}/catalog/products/${product.slug}/contact/`;
 
-    // 3. Abrimos em uma nova aba. O Backend vai registrar o clique e mandar pro Zap.
     window.open(targetUrl, '_blank');
   };
 
-  // 3. Abre o modal de edição em vez de navegar
   const handleEdit = () => {
     setIsMenuOpen(false);
     setIsEditModalOpen(true); 
   };
 
-  // 4. Atualiza os dados na tela instantaneamente após edição
   const handleProductUpdate = (updatedProduct: DetailsProduct) => {
     setProduct(updatedProduct);
   };
@@ -112,12 +107,7 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
   const handleDelete = () => {
     if (!product) return;
     
-    // O confirm nativo é feio, mas funcional. 
-    // Futuramente podemos criar um "DeleteConfirmationModal".
     if (confirm("Tem certeza que deseja excluir este produto?")) {
-        
-        // ✨ A MÁGICA DO TOASTIFY: toast.promise
-        // Ele gerencia os 3 estados (Carregando, Sucesso, Erro) sozinho
         toast.promise(
             api.delete(`catalog/products/delete/${product.id}/`),
             {
@@ -127,16 +117,13 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
             }
         )
         .then(() => {
-            onClose(); // Fecha o modal
-            
-            // Dá 1.5s para o usuário ler o Toast antes de recarregar a tela
+            onClose(); 
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
         })
         .catch(err => {
             console.error("Erro ao excluir", err);
-            // O toast.promise já exibiu o erro visualmente no 'error' acima
         });
     }
     
@@ -179,7 +166,7 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
         {!loading && !error && product && (
           <>
             {/* ESQUERDA: FOTOS */}
-            <div className="w-full md:w-[60%] h-[40vh] md:h-full bg-slate-100 relative group select-none flex items-center justify-center">
+            <div className="w-full md:w-[60%] h-[40vh] md:h-full bg-slate-100 relative group select-none flex items-center justify-center shrink-0">
                 
                 {product.images && product.images.length > 0 ? (
                     <img 
@@ -212,8 +199,9 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
                 )}
             </div>
 
-            {/* DIREITA: INFORMAÇÕES */}
-            <div className="w-full md:w-[40%] h-full flex flex-col bg-white border-l border-slate-100 relative">
+            {/* --- CORREÇÃO 2: Adicionei 'overflow-hidden' nesta div --- */}
+            {/* Isso força o container a respeitar a altura do pai e ativa o scroll interno */}
+            <div className="w-full md:w-[40%] flex-1 md:h-full flex flex-col bg-white border-l border-slate-100 relative overflow-hidden">
                 
                 {/* HEADER COM MENU */}
                 <div className="h-16 shrink-0 border-b border-slate-100 flex items-center justify-between px-6 bg-white relative z-30">
@@ -325,7 +313,6 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
 
                 <div className="p-5 border-t border-slate-100 bg-slate-50/50 shrink-0">
                     <button 
-                        // MUDANÇA AQUI: Se for dono -> Edita. Se não -> Chama o Zap
                         onClick={isOwner ? handleEdit : handleWhatsApp} 
                         className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2"
                     >
@@ -353,7 +340,6 @@ export default function ProductDetailModal({ isOpen, onClose, productSlug, isOwn
         )}
       </div>
 
-      {/* 5. Renderiza o Modal de Edição (Overlay) */}
       {product && (
         <EditProductModal 
             isOpen={isEditModalOpen}
